@@ -22,9 +22,21 @@ export function renderMarkdown(report: EvalReport): string {
     "",
     `> Mode: \`${report.mode}\`. ${report.note}`,
     "",
-    `| Chunking | Retriever | Recall@1 | Recall@5 | MRR | Faithfulness | Citation accuracy |`,
-    `| --- | --- | ---: | ---: | ---: | ---: | ---: |`,
   ];
+
+  if (report.hardware) lines.push(`Hardware: ${report.hardware}`, "");
+  if (report.models) {
+    lines.push(
+      `Models: chat \`${report.models.chat}\`, embeddings \`${report.models.embed}\` (${report.models.embedding_dimensions} dimensions), reranker \`${report.models.reranker}\`, judge \`${report.models.judge}\`.`,
+      `Date: ${report.date}.`,
+      ""
+    );
+  }
+
+  lines.push(
+    `| Chunking | Retriever | Recall@1 | Recall@5 | MRR | Faithfulness | Citation accuracy |`,
+    `| --- | --- | ---: | ---: | ---: | ---: | ---: |`
+  );
 
   for (const row of report.results) {
     lines.push(

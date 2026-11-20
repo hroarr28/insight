@@ -1,7 +1,8 @@
 {
   "mode": "offline-fixture",
   "live": false,
-  "generated_at": "2026-11-20T20:27:14.802Z",
+  "generated_at": "2026-11-20T20:47:11.146Z",
+  "date": "2026-11-20",
   "note": "Offline fixture run. Embeddings are a 256-dimensional hashing bag of words, not OpenAI text-embedding-3-small. Full-text ranking is in-memory BM25 with a light stemmer, not Postgres ts_rank_cd. The reranker counts token overlap; it is not gpt-4o-mini. The faithfulness judge is a 6-word overlap heuristic. Vector candidates use no cosine floor because hashing scores are not on the production 0.3 scale. This file proves the harness runs. It is not a measurement of the deployed stack.",
   "embedder": "hashing-bow-256",
   "full_text": "in-memory-bm25",

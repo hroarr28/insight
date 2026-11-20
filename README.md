@@ -68,27 +68,66 @@ The judge prompt and its limits live in `src/lib/eval/judge.ts` (`FAITHFULNESS_J
 
 `npm run eval` does not call OpenAI or Supabase. Embeddings are a hashing bag of words, full text is in-memory BM25 with a light stemmer, the reranker counts token overlap, and answers are a sentence copied from the top passage. The production full-text function is still `search_documents_fts`. The harness uses the same fusion, citation parser, and metric functions as the app, with those legs swapped in.
 
-`npm run eval:live` embeds with `text-embedding-3-small`, keeps the 0.3 cosine floor, and uses gpt-4o-mini for rerank, answers, and the judge. The answer prompt is the same system prompt as `/api/ask`. Full text is still the in-memory BM25 stand-in, and the run does not write to Supabase. It needs `OPENAI_API_KEY`. It sends one sequential model call per question per cell, plus rerank calls on the hybrid+rerank cells, so leave a few minutes.
+`npm run eval` and `npm run eval:live` write `eval/results/latest.json` and `eval/results/latest.md`. Read the `mode` field before treating any number as a property of the deployed stack. `npm run eval:live` needs `OPENAI_API_KEY`, keeps the 0.3 cosine floor, and uses gpt-4o-mini. It does not write to Supabase.
 
-Both commands write `eval/results/latest.json` and `eval/results/latest.md`. The JSON carries the definitions, the judge prompt, and the limits. Read the `mode` field before treating any number as a property of the deployed stack.
+Chat, embeddings, reranking, and the faithfulness judge go through one provider. `LLM_PROVIDER` defaults to `openai`, which is the deployed path: `gpt-4o-mini`, `text-embedding-3-small`, and the `vector(1536)` column. `LLM_PROVIDER=ollama` sends chat and rerank to a local daemon. Upload and search refuse that provider when the embedding width is not 1536, so a 768-dimension local model cannot be written into the existing column.
+
+## Local eval on a Mac
+
+`npm run eval:local` needs Ollama and nothing else. No OpenAI key and no Supabase. It embeds with [embeddinggemma](https://ollama.com/library/embeddinggemma) (300M parameters, 768 dimensions), then asks, reranks, and judges with `gemma4:31b`. Vectors are cached under `eval/cache/` (gitignored), so a rerun only embeds text it has not seen.
+
+The retrieval is in-process and uses the same reciprocal rank fusion as the app. It is not the SQL functions. Differences, also written into the results file:
+
+- Cosine top-k has no 0.3 floor. That floor in `match_documents` was chosen for OpenAI scores.
+- The keyword leg ORs at most 40 lexemes and ranks them with BM25. Postgres uses the english snowball stemmer, `ts_rank_cd`, and heading weight A against body weight B. The local stemmer only strips a few suffixes.
+- The judge is the same model that wrote the answer, so it is weaker than a held-out judge.
+
+```bash
+ollama pull embeddinggemma
+npm install
+npm run eval:local
+```
+
+`gemma4:31b` is the chat model and is already expected to be present. If either model is missing, the script prints the `ollama pull` command and exits. Overrides:
+
+```bash
+# OLLAMA_BASE_URL=http://127.0.0.1:11434
+# OLLAMA_CHAT_MODEL=gemma4:31b
+# OLLAMA_EMBED_MODEL=embeddinggemma
+# OLLAMA_EMBED_DIMENSIONS=768
+```
+
+The command writes `eval/results/local.json` and `eval/results/local.md`, labelled with the model tags, the machine description, the date, and recall@1, recall@5, MRR, citation accuracy, and faithfulness for all three chunkers and all three retrievers.
 
 ## Eval results
 
-Live results are pending a run by the owner. This environment had no `OPENAI_API_KEY` and no database, so this README has no live recall, MRR, faithfulness, or citation figures.
+### Local Ollama run
 
-The harness was executed offline. That run writes `eval/results/latest.json` and `eval/results/latest.md` with `"mode": "offline-fixture"`. Those files are a pipeline check. They are not a measurement of OpenAI embeddings, Postgres `tsvector`, or gpt-4o-mini.
+Pending a local run by the owner. This table is not a measurement.
 
-To produce the live numbers and replace this note with the table from `eval/results/latest.md`:
+| Chunking | Retriever | Recall@1 | Recall@5 | MRR | Faithfulness | Citation accuracy |
+| --- | --- | --- | --- | --- | --- | --- |
+| paragraph-500-50 | vector | pending local run | pending local run | pending local run | pending local run | pending local run |
+| paragraph-500-50 | hybrid | pending local run | pending local run | pending local run | pending local run | pending local run |
+| paragraph-500-50 | hybrid-rerank | pending local run | pending local run | pending local run | pending local run | pending local run |
+| paragraph-1000-100 | vector | pending local run | pending local run | pending local run | pending local run | pending local run |
+| paragraph-1000-100 | hybrid | pending local run | pending local run | pending local run | pending local run | pending local run |
+| paragraph-1000-100 | hybrid-rerank | pending local run | pending local run | pending local run | pending local run | pending local run |
+| heading-aware | vector | pending local run | pending local run | pending local run | pending local run | pending local run |
+| heading-aware | hybrid | pending local run | pending local run | pending local run | pending local run | pending local run |
+| heading-aware | hybrid-rerank | pending local run | pending local run | pending local run | pending local run | pending local run |
 
-```bash
-npm run eval:live
-```
+Replace those cells with the table from `eval/results/local.md` after `npm run eval:local`.
 
-`OPENAI_API_KEY` must be set. Supabase is not required for that command. Apply `supabase/migrations/002_hybrid_full_text.sql` separately before hybrid search works in the app.
+An offline fixture run (`npm run eval`, `"mode": "offline-fixture"`) only checks that the harness writes a file. It is not this table.
+
+### OpenAI
+
+A paid OpenAI run is optional. `npm run eval:live` needs `OPENAI_API_KEY` and does not use Supabase. No OpenAI figures are recorded here.
 
 ## Tests and CI
 
-Vitest covers chunking, reciprocal rank fusion, citation parsing, request validation, rerank parsing and failure, fusion fallback, and the metric definitions, including a hand-counted ranking. The dataset test checks that every gold quote occurs once. Nothing in the suite opens a network connection or a Supabase client.
+Vitest covers chunking, reciprocal rank fusion, citation parsing, request validation, rerank parsing and failure, fusion fallback, the metric definitions, provider selection, a fake Ollama client, and the embedding cache. The dataset test checks that every gold quote occurs once. Nothing in the suite opens a network connection or a Supabase client. CI does not run `npm run eval:local`.
 
 GitHub Actions (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests, the offline eval, and the production build on pull requests. It does not use secrets.
 

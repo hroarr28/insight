@@ -1,7 +1,6 @@
-import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
 import { formatContext } from "@/lib/grounding";
-import { createLlmReranker } from "@/lib/rerank";
+import { createProviderReranker, getTextProvider } from "@/lib/providers";
+import { assertDatabaseEmbeddingDimensions } from "@/lib/providers/config";
 import {
   noopReranker,
   resolveRetrievalMode,
@@ -10,7 +9,6 @@ import {
   type ChunkHit,
 } from "@/lib/retrieval";
 import { supabaseAdmin } from "@/lib/supabase";
-import { generateEmbedding } from "@/lib/embeddings";
 import type { RetrievalMode, SearchResult } from "@/lib/types";
 
 interface VectorRow {
@@ -60,22 +58,15 @@ function toSearchResult(hit: ChunkHit): SearchResult {
 let missingKeyWarned = false;
 
 function buildReranker() {
-  if (!process.env.OPENAI_API_KEY) {
+  const provider = getTextProvider();
+  if (provider.config.provider === "openai" && !process.env.OPENAI_API_KEY) {
     if (!missingKeyWarned) {
       missingKeyWarned = true;
       console.warn("Rerank requested but OPENAI_API_KEY is missing; using fused order.");
     }
     return noopReranker;
   }
-
-  return createLlmReranker(async (prompt) => {
-    const { text } = await generateText({
-      model: openai("gpt-4o-mini"),
-      temperature: 0,
-      prompt,
-    });
-    return text;
-  });
+  return createProviderReranker(provider);
 }
 
 function logTextSearchError(error: unknown): void {
@@ -111,12 +102,17 @@ export async function retrieveForApp(
   limit: number,
   mode: RetrievalMode = resolveRetrievalMode(process.env.RETRIEVAL_MODE)
 ): Promise<{ results: SearchResult[]; context: string }> {
+  assertDatabaseEmbeddingDimensions();
   const rerankEnabled = process.env.RERANK_ENABLED === "true";
   const hits = await retrieve(
     query,
     { mode, limit, rerankEnabled },
     {
-      embedQuery: generateEmbedding,
+      embedQuery: async (text) => {
+        const [vector] = await getTextProvider().embed([text]);
+        if (!vector) throw new Error("Embedding provider returned no vector");
+        return vector;
+      },
       vectorSearch,
       textSearch,
       reranker: wantsRerank(mode, rerankEnabled) ? buildReranker() : noopReranker,

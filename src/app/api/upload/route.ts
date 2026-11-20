@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { chunkText, extractTextFromPDF } from "@/lib/chunker";
 import { generateEmbeddings } from "@/lib/embeddings";
+import { assertDatabaseEmbeddingDimensions, EmbeddingDimensionError } from "@/lib/providers/config";
 import { validateUploadFile } from "@/lib/validation";
 
 export const maxDuration = 60;
@@ -41,6 +42,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    assertDatabaseEmbeddingDimensions();
 
     // Chunk the text
     const chunks = chunkText(text);
@@ -109,7 +112,10 @@ export async function POST(request: NextRequest) {
       chunks: chunks.length,
     });
   } catch (error) {
-    console.error("Upload error:", error);
+    if (error instanceof EmbeddingDimensionError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error("Upload error:", error instanceof Error ? error.message : "unknown error");
     return NextResponse.json(
       { error: "Internal server error." },
       { status: 500 }

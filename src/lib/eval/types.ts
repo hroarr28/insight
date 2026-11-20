@@ -42,10 +42,21 @@ export interface EvalRow {
   by_kind: Record<string, KindScores>;
 }
 
+export interface EvalModels {
+  chat: string;
+  embed: string;
+  embedding_dimensions: number;
+  reranker: string;
+  judge: string;
+}
+
 export interface EvalReport {
-  mode: "offline-fixture" | "live";
+  mode: "offline-fixture" | "live" | "local-ollama";
   live: boolean;
   generated_at: string;
+  date: string;
+  hardware?: string;
+  models?: EvalModels;
   note: string;
   embedder: string;
   full_text: string;

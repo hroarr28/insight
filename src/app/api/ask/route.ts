@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
-import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { buildSystemPrompt } from "@/lib/grounding";
+import { chatLanguageModel } from "@/lib/providers";
+import { EmbeddingDimensionError } from "@/lib/providers/config";
 import { resolveRetrievalMode } from "@/lib/retrieval";
 import { retrieveForApp } from "@/lib/search-documents";
 import { validateQuestion } from "@/lib/validation";
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     ];
 
     const result = streamText({
-      model: openai("gpt-4o-mini"),
+      model: chatLanguageModel(),
       system: buildSystemPrompt(context),
       messages,
     });
@@ -50,6 +51,7 @@ export async function POST(request: NextRequest) {
     response.headers.set("X-Sources", sourcesHeader);
     return response;
   } catch (error) {
+    if (error instanceof EmbeddingDimensionError) return jsonError(error.message, 400);
     console.error("Ask error:", error instanceof Error ? error.message : "unknown error");
     return jsonError("Internal server error.", 500);
   }

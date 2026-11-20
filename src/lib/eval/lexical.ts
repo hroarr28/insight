@@ -66,6 +66,13 @@ export interface Embedder {
   embed(texts: string[]): Promise<number[][]>;
 }
 
+/** Same cap as search_documents_fts: at most 40 distinct lexemes, alphabetical. */
+export const MAX_QUERY_LEXEMES = 40;
+
+export function queryLexemes(text: string): string[] {
+  return [...new Set(tokenize(text))].sort().slice(0, MAX_QUERY_LEXEMES);
+}
+
 export const hashingEmbedder: Embedder = {
   name: "hashing-bow-256",
   async embed(texts) {
@@ -102,7 +109,7 @@ export class Bm25Index {
   }
 
   search(query: string, limit: number): { id: string; score: number }[] {
-    const terms = [...new Set(tokenize(query))];
+    const terms = queryLexemes(query);
     if (terms.length === 0 || this.documents.length === 0) return [];
 
     const n = this.documents.length;

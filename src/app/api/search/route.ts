@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { EmbeddingDimensionError } from "@/lib/providers/config";
 import { resolveRetrievalMode } from "@/lib/retrieval";
 import { retrieveForApp } from "@/lib/search-documents";
 import { validateSearchRequest } from "@/lib/validation";
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ results });
   } catch (error) {
+    if (error instanceof EmbeddingDimensionError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     console.error("Search error:", error instanceof Error ? error.message : "unknown error");
     return NextResponse.json({ error: "Internal server error." }, { status: 500 });
   }

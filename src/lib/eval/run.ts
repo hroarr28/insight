@@ -8,7 +8,15 @@ import {
   type FaithfulnessJudge,
 } from "@/lib/eval/judge";
 import { METRIC_DEFINITIONS } from "@/lib/eval/report";
-import type { EvalDocument, EvalQuestion, EvalReport, EvalRow, JudgeControl, KindScores } from "@/lib/eval/types";
+import type {
+  EvalDocument,
+  EvalModels,
+  EvalQuestion,
+  EvalReport,
+  EvalRow,
+  JudgeControl,
+  KindScores,
+} from "@/lib/eval/types";
 import { parseCitations } from "@/lib/citations";
 import {
   DEFAULT_RRF_K,
@@ -31,6 +39,8 @@ export interface EvalRuntime {
   fullTextName: string;
   mode: EvalReport["mode"];
   note: string;
+  hardware?: string;
+  models?: EvalModels;
 }
 
 function indexChunks(documents: EvalDocument[], strategy: ChunkingStrategy): ChunkHit[] {
@@ -226,6 +236,9 @@ export async function runEvaluation(
     mode: runtime.mode,
     live: runtime.mode === "live",
     generated_at: generatedAt,
+    date: generatedAt.slice(0, 10),
+    hardware: runtime.hardware,
+    models: runtime.models,
     note: runtime.note,
     embedder: runtime.embedder.name,
     full_text: runtime.fullTextName,

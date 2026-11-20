@@ -16,4 +16,4 @@
 
 Judge `heuristic-6gram` control accuracy: 0.833 on 6 labelled controls (0 judge errors).
 Embedder `hashing-bow-256`. Full text `in-memory-bm25`. Reranker `lexical-overlap`. Vector floor 0. RRF k 60.
-Generated at 2026-11-20T20:27:14.802Z.
+Generated at 2026-11-20T20:47:11.146Z.

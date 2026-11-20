@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "eval": "tsx scripts/eval.ts",
-    "eval:live": "tsx scripts/eval.ts --live"
+    "eval:live": "tsx scripts/eval.ts --live",
+    "eval:local": "tsx scripts/eval.ts --local"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.37",
