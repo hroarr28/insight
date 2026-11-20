@@ -1,0 +1,385 @@
+{
+  "description": "Questions over the public-domain corpus in eval/corpus. A retrieved chunk is relevant when its text contains any gold_quotes string. See eval/corpus/SOURCES.md for provenance and licence.",
+  "questions": [
+    {
+      "id": "alice-01",
+      "document": "alice-wonderland.txt",
+      "kind": "paraphrase",
+      "question": "What does Alice think a book needs if it is going to be worth reading?",
+      "gold_quotes": [
+        "without pictures or conversations"
+      ]
+    },
+    {
+      "id": "alice-02",
+      "document": "alice-wonderland.txt",
+      "kind": "paraphrase",
+      "question": "What colour were the eyes of the rabbit that ran past Alice?",
+      "gold_quotes": [
+        "White Rabbit with pink eyes"
+      ]
+    },
+    {
+      "id": "alice-03",
+      "document": "alice-wonderland.txt",
+      "kind": "paraphrase",
+      "question": "What did the rabbit produce from its clothing that made Alice chase it?",
+      "gold_quotes": [
+        "TOOK A WATCH OUT OF ITS WAISTCOAT-POCKET"
+      ]
+    },
+    {
+      "id": "alice-04",
+      "document": "alice-wonderland.txt",
+      "kind": "lexical",
+      "question": "What two words are printed on the bottle Alice finds?",
+      "gold_quotes": [
+        "DRINK ME"
+      ]
+    },
+    {
+      "id": "alice-05",
+      "document": "alice-wonderland.txt",
+      "kind": "lexical",
+      "question": "What two words are marked on the cake in the rabbit-hole?",
+      "gold_quotes": [
+        "EAT ME"
+      ]
+    },
+    {
+      "id": "alice-06",
+      "document": "alice-wonderland.txt",
+      "kind": "paraphrase",
+      "question": "What instrument does Alice compare her sudden growing to?",
+      "gold_quotes": [
+        "largest telescope that ever was"
+      ]
+    },
+    {
+      "id": "alice-07",
+      "document": "alice-wonderland.txt",
+      "kind": "paraphrase",
+      "question": "Which animal insists that being older means it must know better than Alice?",
+      "gold_quotes": [
+        "I am older than you, and must know better"
+      ]
+    },
+    {
+      "id": "alice-08",
+      "document": "alice-wonderland.txt",
+      "kind": "paraphrase",
+      "question": "What does the Dodo announce about prizes after the caucus-race?",
+      "gold_quotes": [
+        "all must have prizes"
+      ]
+    },
+    {
+      "id": "alice-09",
+      "document": "alice-wonderland.txt",
+      "kind": "paraphrase",
+      "question": "Where does the rabbit disappear at the start of Alice's chase?",
+      "gold_quotes": [
+        "large rabbit-hole under the hedge"
+      ]
+    },
+    {
+      "id": "alice-10",
+      "document": "alice-wonderland.txt",
+      "kind": "lexical",
+      "question": "What exclamation does Alice shout when she forgets how to speak good English?",
+      "gold_quotes": [
+        "Curiouser and curiouser"
+      ]
+    },
+    {
+      "id": "holm-01",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "paraphrase",
+      "question": "What title does Holmes use for Irene Adler instead of her name?",
+      "gold_quotes": [
+        "always THE woman"
+      ]
+    },
+    {
+      "id": "holm-02",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "paraphrase",
+      "question": "Does Watson think Holmes was in love with Irene Adler?",
+      "gold_quotes": [
+        "emotion akin to love for Irene Adler"
+      ]
+    },
+    {
+      "id": "holm-03",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "lexical",
+      "question": "On what date in 1888 did Watson's walk take him through Baker Street?",
+      "gold_quotes": [
+        "twentieth of March, 1888"
+      ]
+    },
+    {
+      "id": "holm-04",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "lexical",
+      "question": "What is the gasogene doing in Holmes's room when Watson sits down?",
+      "gold_quotes": [
+        "spirit case and a gasogene in the corner"
+      ]
+    },
+    {
+      "id": "holm-05",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "paraphrase",
+      "question": "What false name and rank does the masked visitor tell Holmes to use for him?",
+      "gold_quotes": [
+        "Count Von Kramm, a Bohemian nobleman"
+      ]
+    },
+    {
+      "id": "holm-06",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "paraphrase",
+      "question": "What is the street address of Irene Adler's house?",
+      "gold_quotes": [
+        "Briony Lodge, Serpentine Avenue, St. John's Wood"
+      ]
+    },
+    {
+      "id": "holm-07",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "paraphrase",
+      "question": "What device does Holmes give Watson to start the false fire alarm?",
+      "gold_quotes": [
+        "ordinary plumber's smoke-rocket"
+      ]
+    },
+    {
+      "id": "holm-08",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "lexical",
+      "question": "Why does the Godfrey Norton marriage make the photograph more dangerous for Irene?",
+      "gold_quotes": [
+        "averse to its being seen by Mr. Godfrey Norton"
+      ]
+    },
+    {
+      "id": "holm-09",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "paraphrase",
+      "question": "What jewel does the King take from his finger and offer Holmes as a reward?",
+      "gold_quotes": [
+        "emerald snake ring"
+      ]
+    },
+    {
+      "id": "holm-10",
+      "document": "scandal-in-bohemia.txt",
+      "kind": "paraphrase",
+      "question": "What had separated Watson from Holmes before the night of the visit?",
+      "gold_quotes": [
+        "My marriage had drifted us away from each other"
+      ]
+    },
+    {
+      "id": "fed1-01",
+      "document": "federalist-no-1.txt",
+      "kind": "lexical",
+      "question": "On what date was Federalist No. 1 first printed in the Independent Journal?",
+      "gold_quotes": [
+        "October 27, 1787"
+      ]
+    },
+    {
+      "id": "fed1-02",
+      "document": "federalist-no-1.txt",
+      "kind": "lexical",
+      "question": "Which author is named on Federalist No. 1?",
+      "gold_quotes": [
+        "HAMILTON"
+      ]
+    },
+    {
+      "id": "fed1-03",
+      "document": "federalist-no-1.txt",
+      "kind": "paraphrase",
+      "question": "What does Hamilton say the fate of the new Constitution puts at risk for the country as a whole?",
+      "gold_quotes": [
+        "existence of the UNION"
+      ]
+    },
+    {
+      "id": "fed1-04",
+      "document": "federalist-no-1.txt",
+      "kind": "paraphrase",
+      "question": "Which office-holders does Hamilton expect to oppose any change that would shrink their importance?",
+      "gold_quotes": [
+        "emolument, and consequence of the offices"
+      ]
+    },
+    {
+      "id": "fed1-05",
+      "document": "federalist-no-1.txt",
+      "kind": "paraphrase",
+      "question": "What does Hamilton say a sound judgment will not forget about the relationship between a strong government and liberty?",
+      "gold_quotes": [
+        "the vigor of government is essential to the security of liberty"
+      ]
+    },
+    {
+      "id": "fed1-06",
+      "document": "federalist-no-1.txt",
+      "kind": "lexical",
+      "question": "In which newspaper does the heading say Federalist No. 1 appeared?",
+      "gold_quotes": [
+        "For the Independent Journal"
+      ]
+    },
+    {
+      "id": "fed10-01",
+      "document": "federalist-no-10.txt",
+      "kind": "paraphrase",
+      "question": "What dangerous political vice does Madison say a well built union is especially able to restrain?",
+      "gold_quotes": [
+        "break and control the violence of faction"
+      ]
+    },
+    {
+      "id": "fed10-02",
+      "document": "federalist-no-10.txt",
+      "kind": "paraphrase",
+      "question": "What is the first method Madison gives for removing the causes of faction, and why does he reject it?",
+      "gold_quotes": [
+        "destroying the liberty which is essential to its existence"
+      ]
+    },
+    {
+      "id": "fed10-03",
+      "document": "federalist-no-10.txt",
+      "kind": "paraphrase",
+      "question": "Why does Madison say a person must not sit in judgment on their own case?",
+      "gold_quotes": [
+        "his interest would certainly bias his judgment"
+      ]
+    },
+    {
+      "id": "fed10-04",
+      "document": "federalist-no-10.txt",
+      "kind": "paraphrase",
+      "question": "What does Madison call the most common and lasting source of factions?",
+      "gold_quotes": [
+        "various and unequal distribution of property"
+      ]
+    },
+    {
+      "id": "fed10-05",
+      "document": "federalist-no-10.txt",
+      "kind": "paraphrase",
+      "question": "How does Madison define a republic, as opposed to a pure democracy?",
+      "gold_quotes": [
+        "scheme of representation takes place"
+      ]
+    },
+    {
+      "id": "fed10-06",
+      "document": "federalist-no-10.txt",
+      "kind": "lexical",
+      "question": "What analogy does Madison use for liberty and faction, involving air and fire?",
+      "gold_quotes": [
+        "Liberty is to faction what air is to fire"
+      ]
+    },
+    {
+      "id": "fed10-07",
+      "document": "federalist-no-10.txt",
+      "kind": "lexical",
+      "question": "On what date in November 1787 did the Daily Advertiser publish Federalist No. 10?",
+      "gold_quotes": [
+        "November 22, 1787"
+      ]
+    },
+    {
+      "id": "fed10-08",
+      "document": "federalist-no-10.txt",
+      "kind": "paraphrase",
+      "question": "What two effects does Madison expect from widening the country: which vice is restrained, and what happens to parties when the sphere grows?",
+      "gold_quotes": [
+        "break and control the violence of faction",
+        "Extend the sphere, and you take in a greater variety of parties and interests"
+      ]
+    },
+    {
+      "id": "dec-01",
+      "document": "declaration-of-independence.txt",
+      "kind": "paraphrase",
+      "question": "Which rights does the Declaration say are unalienable?",
+      "gold_quotes": [
+        "Life, Liberty, and the pursuit of Happiness"
+      ]
+    },
+    {
+      "id": "dec-02",
+      "document": "declaration-of-independence.txt",
+      "kind": "paraphrase",
+      "question": "From whom does the Declaration say governments derive their just powers?",
+      "gold_quotes": [
+        "consent of the governed"
+      ]
+    },
+    {
+      "id": "dec-03",
+      "document": "declaration-of-independence.txt",
+      "kind": "paraphrase",
+      "question": "What right do the people have when a government becomes destructive of their rights?",
+      "gold_quotes": [
+        "Right of the People to alter or to abolish it"
+      ]
+    },
+    {
+      "id": "dec-04",
+      "document": "declaration-of-independence.txt",
+      "kind": "paraphrase",
+      "question": "What does the indictment say the king sent over to harass the colonists and consume their resources?",
+      "gold_quotes": [
+        "swarms of Officers to harass our People"
+      ]
+    },
+    {
+      "id": "dec-05",
+      "document": "declaration-of-independence.txt",
+      "kind": "paraphrase",
+      "question": "What complaint does the Declaration make about taxation?",
+      "gold_quotes": [
+        "imposing taxes on us without our Consent"
+      ]
+    },
+    {
+      "id": "dec-06",
+      "document": "declaration-of-independence.txt",
+      "kind": "paraphrase",
+      "question": "What three things do the representatives pledge to each other at the end?",
+      "gold_quotes": [
+        "our Lives, our Fortunes and our sacred Honor"
+      ]
+    },
+    {
+      "id": "dec-07",
+      "document": "declaration-of-independence.txt",
+      "kind": "paraphrase",
+      "question": "What political tie to the British monarch do the colonies say is dissolved?",
+      "gold_quotes": [
+        "Absolved from all Allegiance to the British Crown"
+      ]
+    },
+    {
+      "id": "dec-08",
+      "document": "declaration-of-independence.txt",
+      "kind": "lexical",
+      "question": "The Declaration and the pledge: where do just powers come from, and what do the signers stake at the close?",
+      "gold_quotes": [
+        "consent of the governed",
+        "our Lives, our Fortunes and our sacred Honor"
+      ]
+    }
+  ]
+}

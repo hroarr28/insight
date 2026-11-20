@@ -1,0 +1,255 @@
+{
+  "mode": "offline-fixture",
+  "live": false,
+  "generated_at": "2026-11-20T20:27:14.802Z",
+  "note": "Offline fixture run. Embeddings are a 256-dimensional hashing bag of words, not OpenAI text-embedding-3-small. Full-text ranking is in-memory BM25 with a light stemmer, not Postgres ts_rank_cd. The reranker counts token overlap; it is not gpt-4o-mini. The faithfulness judge is a 6-word overlap heuristic. Vector candidates use no cosine floor because hashing scores are not on the production 0.3 scale. This file proves the harness runs. It is not a measurement of the deployed stack.",
+  "embedder": "hashing-bow-256",
+  "full_text": "in-memory-bm25",
+  "reranker": "lexical-overlap",
+  "judge": {
+    "name": "heuristic-6gram",
+    "prompt": "You are a strict faithfulness judge for a retrieval-augmented answer.\n\nYou are given a question, an answer, and the passages the answer cites. Decide whether every factual claim in the answer is entailed by those passages.\n\nRules:\n- Use only the cited passages. Do not use outside knowledge.\n- A claim is supported only when the passages entail it, not when it is merely on the same topic.\n- Citation markers such as [Source N] are not claims.\n- If the answer says the documents do not contain the answer, and it does not add a factual claim, it is faithful.\n- Unsupported, contradicted, or more specific claims fail.\n\nReturn JSON only:\n{\"faithful\": false, \"unsupported_claims\": [\"claim that is not entailed\"]}",
+    "limits": [
+      "The live judge is gpt-4o-mini, the same family as the answer model, so the two can share a blind spot.",
+      "The verdict is binary. A mostly supported answer fails if one claim is unsupported.",
+      "The judge sees only the passages the answer cites. It does not check that [Source N] points at the right passage. That is citation accuracy.",
+      "The verdict moves when the prompt changes. The prompt above is the one the harness sends.",
+      "The offline judge is a lexical heuristic, not the model. A sentence passes when any contiguous 6-word span appears in the cited text, so a true clause joined to a false one in the same sentence can pass.",
+      "The offline heuristic only recognises two abstention sentences: the extractive fallback, and \"The documents do not contain enough information to answer.\" Other wordings are judged as ordinary claims."
+    ]
+  },
+  "ranking_depth": 20,
+  "answer_sources": 6,
+  "rrf_k": 60,
+  "vector_threshold": 0,
+  "questions": 42,
+  "definitions": {
+    "recall_at_k": "Macro-average of |relevant chunks in the top k| / |relevant chunks|. A chunk is relevant when its heading or content contains any gold quote. Overlap can put one quote in two chunks; both count.",
+    "mrr": "Macro-average of 1/rank of the first relevant chunk. The rank is missing, and the score is 0, when no relevant chunk appears in the ranking (depth 20).",
+    "citation_accuracy": "Macro-average of (cited chunks that are relevant) / (unique [Source N] markers). A marker that does not point at a shown passage counts as wrong. An answer with no citations scores 0. Source numbers refer to the six passages the answerer saw.",
+    "faithfulness": "Macro-average of a binary verdict that every claim is entailed by the cited passages. Questions whose judge call failed are left out of the average. The judge name, prompt, and limits are on this report."
+  },
+  "judge_controls": {
+    "accuracy": 0.8333333333333334,
+    "n": 6,
+    "errors": 0
+  },
+  "results": [
+    {
+      "chunking": "paragraph-500-50",
+      "retriever": "vector",
+      "chunks": 307,
+      "n": 42,
+      "recall_at_1": 0.21031746031746032,
+      "recall_at_5": 0.37896825396825395,
+      "mrr": 0.4065909949838521,
+      "faithfulness": 1,
+      "citation_accuracy": 0.30952380952380953,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.3694444444444444,
+          "mrr": 0.39417448292448287
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.40277777777777773,
+          "mrr": 0.43763227513227515
+        }
+      }
+    },
+    {
+      "chunking": "paragraph-500-50",
+      "retriever": "hybrid",
+      "chunks": 307,
+      "n": 42,
+      "recall_at_1": 0.3551587301587301,
+      "recall_at_5": 0.6138888888888889,
+      "mrr": 0.6039888682745825,
+      "faithfulness": 1,
+      "citation_accuracy": 0.5,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.5694444444444445,
+          "mrr": 0.5514177489177489
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.725,
+          "mrr": 0.7354166666666666
+        }
+      }
+    },
+    {
+      "chunking": "paragraph-500-50",
+      "retriever": "hybrid-rerank",
+      "chunks": 307,
+      "n": 42,
+      "recall_at_1": 0.47420634920634913,
+      "recall_at_5": 0.7130952380952381,
+      "mrr": 0.7184098639455782,
+      "faithfulness": 1,
+      "citation_accuracy": 0.6428571428571429,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.7194444444444446,
+          "mrr": 0.6810119047619048
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.6972222222222223,
+          "mrr": 0.811904761904762
+        }
+      }
+    },
+    {
+      "chunking": "paragraph-1000-100",
+      "retriever": "vector",
+      "chunks": 222,
+      "n": 42,
+      "recall_at_1": 0.19444444444444448,
+      "recall_at_5": 0.4507936507936508,
+      "mrr": 0.45007585007585,
+      "faithfulness": 1,
+      "citation_accuracy": 0.3333333333333333,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.46666666666666673,
+          "mrr": 0.4337425537425537
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.41111111111111115,
+          "mrr": 0.4909090909090909
+        }
+      }
+    },
+    {
+      "chunking": "paragraph-1000-100",
+      "retriever": "hybrid",
+      "chunks": 222,
+      "n": 42,
+      "recall_at_1": 0.3119047619047619,
+      "recall_at_5": 0.6238095238095238,
+      "mrr": 0.6273228094656665,
+      "faithfulness": 1,
+      "citation_accuracy": 0.5238095238095238,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.6055555555555556,
+          "mrr": 0.5634371184371183
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.6694444444444444,
+          "mrr": 0.7870370370370371
+        }
+      }
+    },
+    {
+      "chunking": "paragraph-1000-100",
+      "retriever": "hybrid-rerank",
+      "chunks": 222,
+      "n": 42,
+      "recall_at_1": 0.4666666666666667,
+      "recall_at_5": 0.6833333333333333,
+      "mrr": 0.7486063869992442,
+      "faithfulness": 1,
+      "citation_accuracy": 0.6904761904761905,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.6777777777777778,
+          "mrr": 0.706845238095238
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.6972222222222223,
+          "mrr": 0.8530092592592592
+        }
+      }
+    },
+    {
+      "chunking": "heading-aware",
+      "retriever": "vector",
+      "chunks": 309,
+      "n": 42,
+      "recall_at_1": 0.1865079365079365,
+      "recall_at_5": 0.40277777777777773,
+      "mrr": 0.3704926026354598,
+      "faithfulness": 0.9047619047619048,
+      "citation_accuracy": 0.2619047619047619,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.40277777777777773,
+          "mrr": 0.39390331890331887
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.40277777777777773,
+          "mrr": 0.31196581196581197
+        }
+      }
+    },
+    {
+      "chunking": "heading-aware",
+      "retriever": "hybrid",
+      "chunks": 309,
+      "n": 42,
+      "recall_at_1": 0.2837301587301587,
+      "recall_at_5": 0.5972222222222222,
+      "mrr": 0.5328342059434495,
+      "faithfulness": 0.9047619047619048,
+      "citation_accuracy": 0.40476190476190477,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.5694444444444445,
+          "mrr": 0.5126345549874961
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.6666666666666666,
+          "mrr": 0.5833333333333334
+        }
+      }
+    },
+    {
+      "chunking": "heading-aware",
+      "retriever": "hybrid-rerank",
+      "chunks": 309,
+      "n": 42,
+      "recall_at_1": 0.45039682539682535,
+      "recall_at_5": 0.7083333333333334,
+      "mrr": 0.6823893698893698,
+      "faithfulness": 0.9761904761904762,
+      "citation_accuracy": 0.6190476190476191,
+      "judge_errors": 0,
+      "by_kind": {
+        "paraphrase": {
+          "n": 30,
+          "recall_at_5": 0.7194444444444446,
+          "mrr": 0.6516414141414141
+        },
+        "lexical": {
+          "n": 12,
+          "recall_at_5": 0.6805555555555557,
+          "mrr": 0.7592592592592592
+        }
+      }
+    }
+  ]
+}

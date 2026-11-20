@@ -2,41 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { chunkText, extractTextFromPDF } from "@/lib/chunker";
 import { generateEmbeddings } from "@/lib/embeddings";
+import { validateUploadFile } from "@/lib/validation";
 
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    const uploaded = formData.get("file");
+    if (!(uploaded instanceof File)) {
+      return NextResponse.json({ error: "No file provided." }, { status: 400 });
     }
 
-    const allowedTypes = [
-      "application/pdf",
-      "text/plain",
-      "text/markdown",
-      "text/x-markdown",
-    ];
-    if (
-      !allowedTypes.includes(file.type) &&
-      !file.name.endsWith(".md") &&
-      !file.name.endsWith(".txt")
-    ) {
-      return NextResponse.json(
-        { error: "Unsupported file type. Upload PDF, TXT, or MD files." },
-        { status: 400 }
-      );
+    const parsed = validateUploadFile({
+      name: uploaded.name,
+      type: uploaded.type,
+      size: uploaded.size,
+    });
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error }, { status: parsed.status });
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "File too large. Maximum 10MB." },
-        { status: 400 }
-      );
-    }
+    const file = uploaded;
 
     // Extract text
     const buffer = Buffer.from(await file.arrayBuffer());
