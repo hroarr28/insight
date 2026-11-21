@@ -1,111 +1,130 @@
 import { NextRequest } from "next/server";
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
+import { liveProvider, resolveAppMode } from "@/lib/app-mode";
+import { safeLog } from "@/lib/config-status";
+import { buildSystemPrompt, formatContext } from "@/lib/grounding";
+import { jsonError } from "@/lib/http";
+import { ollamaChat, ollamaSettings } from "@/lib/ollama-client";
+import { playbackFor } from "@/lib/replay";
+import { currentReplay, demoBanner } from "@/lib/replay-data";
+import {
+  guardAskRate,
+  guardBodySize,
+  guardModelConfig,
+  guardStorageConfig,
+  MAX_JSON_BYTES,
+  validateQuestionInput,
+} from "@/lib/request-guards";
+import { enforceDemoSpend } from "@/lib/spend-cap";
+import { consumeDemoCall } from "@/lib/spend-store";
 import { supabaseAdmin } from "@/lib/supabase";
 import { generateEmbedding } from "@/lib/embeddings";
+import { textStream } from "@/lib/text-stream";
 
 export const maxDuration = 30;
 
+function replayResponse(question: string): Response {
+  const replay = currentReplay();
+  const playback = playbackFor(replay, question);
+  const headers = new Headers({
+    "content-type": "text/plain; charset=utf-8",
+    "cache-control": "no-store",
+    "x-demo-mode": "replay",
+    "x-demo-recorded": playback.recorded ? "true" : "false",
+    "x-demo-label": demoBanner(replay),
+  });
+  if (playback.sources.length > 0) {
+    headers.set("x-sources", Buffer.from(JSON.stringify(playback.sources)).toString("base64"));
+  }
+  return new Response(textStream(playback.text), { status: 200, headers });
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { question, history = [] } = await request.json();
+    const oversized = guardBodySize(request, MAX_JSON_BYTES);
+    if (oversized) return oversized;
+    const limited = guardAskRate(request);
+    if (limited) return limited;
 
-    if (!question || typeof question !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Question is required." }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return jsonError("Request body must be JSON.", 400);
     }
+    const parsed = validateQuestionInput(body);
+    if (!parsed.ok) return jsonError(parsed.error, 400);
 
-    // Generate embedding for the question
-    const queryEmbedding = await generateEmbedding(question);
+    if (resolveAppMode() === "demo") return replayResponse(parsed.question);
 
-    // Retrieve relevant chunks
-    const { data: chunks, error } = await supabaseAdmin.rpc(
-      "match_documents",
-      {
-        query_embedding: JSON.stringify(queryEmbedding),
-        match_threshold: 0.3,
-        match_count: 6,
+    const model = guardModelConfig();
+    if (liveProvider() === "openai" && model) return model;
+    const storage = guardStorageConfig();
+    if (storage) return storage;
+
+    if (liveProvider() === "openai") {
+      const spend = await enforceDemoSpend(process.env, consumeDemoCall);
+      if (!spend.ok) {
+        return jsonError(spend.error ?? "Request refused.", spend.status ?? 503, {
+          ...(spend.retryAfterSeconds ? { "retry-after": String(spend.retryAfterSeconds) } : {}),
+        });
       }
-    );
-
-    if (error) {
-      console.error("RAG search error:", error);
-      return new Response(
-        JSON.stringify({ error: "Failed to search documents." }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
     }
 
-    const context =
-      chunks && chunks.length > 0
-        ? chunks
-            .map(
-              (c: { content: string; document_name: string; chunk_index: number }, i: number) =>
-                `[Source ${i + 1}: ${c.document_name}, chunk ${c.chunk_index}]\n${c.content}`
-            )
-            .join("\n\n---\n\n")
-        : "No relevant documents found.";
+    const queryEmbedding = await generateEmbedding(parsed.question);
+    const { data: chunks, error } = await supabaseAdmin.rpc("match_documents", {
+      query_embedding: JSON.stringify(queryEmbedding),
+      match_threshold: 0.3,
+      match_count: 6,
+    });
+    if (error) {
+      safeLog("Ask search", error);
+      return jsonError("Failed to search documents.", 503);
+    }
 
-    const sources =
-      chunks?.map(
-        (c: {
-          content: string;
-          heading: string | null;
-          document_name: string;
-          chunk_index: number;
-          similarity: number;
-        }) => ({
-          content: c.content,
-          heading: c.heading,
-          document_name: c.document_name,
-          chunk_index: c.chunk_index,
-          similarity: c.similarity,
-        })
-      ) || [];
+    const rows = (chunks ?? []) as {
+      content: string;
+      heading: string | null;
+      document_name: string;
+      chunk_index: number;
+      similarity: number;
+    }[];
+    const context = formatContext(rows);
+    const sources = rows.map((row) => ({
+      content: row.content,
+      heading: row.heading,
+      document_name: row.document_name,
+      chunk_index: row.chunk_index,
+      similarity: row.similarity,
+    }));
+    const sourcesHeader = Buffer.from(JSON.stringify(sources)).toString("base64");
 
-    const systemPrompt = `You are Insight, an AI assistant that answers questions based on uploaded documents.
-
-RULES:
-- Answer ONLY using the provided context. Do not use external knowledge.
-- If the context doesn't contain enough information, say so clearly.
-- Reference your sources using [Source N] notation.
-- Be concise and direct.
-- Use markdown formatting for clarity.
-- If the question is about something not in the documents, explain that you can only answer based on uploaded content.
-
-CONTEXT FROM DOCUMENTS:
-${context}`;
-
-    const messages = [
-      ...history.map((m: { role: string; content: string }) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
-      { role: "user" as const, content: question },
-    ];
+    if (liveProvider() === "ollama") {
+      const settings = ollamaSettings();
+      const text = await ollamaChat(settings, {
+        system: buildSystemPrompt(context),
+        prompt: parsed.question,
+      });
+      return new Response(textStream(text), {
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+          "cache-control": "no-store",
+          "x-sources": sourcesHeader,
+        },
+      });
+    }
 
     const result = streamText({
       model: openai("gpt-4o-mini"),
-      system: systemPrompt,
-      messages,
+      system: buildSystemPrompt(context),
+      messages: [...parsed.history, { role: "user" as const, content: parsed.question }],
     });
-
-    // Add sources as a custom header (base64 encoded JSON)
-    const sourcesHeader = Buffer.from(JSON.stringify(sources)).toString(
-      "base64"
-    );
-
     const response = result.toTextStreamResponse();
-    response.headers.set("X-Sources", sourcesHeader);
-
+    response.headers.set("x-sources", sourcesHeader);
     return response;
   } catch (error) {
-    console.error("Ask error:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error." }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    safeLog("Ask", error);
+    return jsonError("Internal server error.", 500);
   }
 }

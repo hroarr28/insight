@@ -1,12 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
+import { demoMutationMessage, liveProvider, resolveAppMode } from "@/lib/app-mode";
+import { safeLog } from "@/lib/config-status";
+import { jsonError } from "@/lib/http";
 import { supabaseAdmin } from "@/lib/supabase";
 import { chunkText, extractTextFromPDF } from "@/lib/chunker";
 import { generateEmbeddings } from "@/lib/embeddings";
+import {
+  guardBodySize,
+  guardModelConfig,
+  guardStorageConfig,
+  guardUploadRate,
+  MAX_UPLOAD_BYTES,
+} from "@/lib/request-guards";
+import { enforceDemoSpend } from "@/lib/spend-cap";
+import { consumeDemoCall } from "@/lib/spend-store";
 
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
+    if (resolveAppMode() === "demo") {
+      return jsonError(demoMutationMessage("upload"), 403);
+    }
+    const oversized = guardBodySize(request, MAX_UPLOAD_BYTES + 1024 * 1024);
+    if (oversized) return oversized;
+    const limited = guardUploadRate(request);
+    if (limited) return limited;
+    const model = guardModelConfig();
+    if (liveProvider() === "openai" && model) return model;
+    const storage = guardStorageConfig();
+    if (storage) return storage;
+    if (liveProvider() === "openai") {
+      const spend = await enforceDemoSpend(process.env, consumeDemoCall);
+      if (!spend.ok) {
+        return jsonError(spend.error ?? "Request refused.", spend.status ?? 503);
+      }
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -122,7 +152,7 @@ export async function POST(request: NextRequest) {
       chunks: chunks.length,
     });
   } catch (error) {
-    console.error("Upload error:", error);
+    safeLog("Upload", error);
     return NextResponse.json(
       { error: "Internal server error." },
       { status: 500 }

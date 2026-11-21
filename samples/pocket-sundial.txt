@@ -1,0 +1,11 @@
+Pocket Sundial Notes
+
+This note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.
+
+A pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.
+
+Solar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.
+
+Pocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.
+
+The useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.

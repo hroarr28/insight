@@ -15,6 +15,16 @@ import {
 } from "lucide-react";
 import type { Document, Message, SearchResult } from "@/lib/types";
 
+const RECORDED_LABEL =
+  "Recorded from local Gemma 4. Live mode runs locally via Ollama.";
+
+interface DemoInfo {
+  demo: boolean;
+  recorded: boolean;
+  label: string;
+  questions: string[];
+}
+
 export default function Home() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,6 +34,7 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [expandedSources, setExpandedSources] = useState<string | null>(null);
+  const [demo, setDemo] = useState<DemoInfo | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,6 +43,14 @@ export default function Home() {
       const res = await fetch("/api/documents");
       const data = await res.json();
       if (data.documents) setDocuments(data.documents);
+      if (data.demo) {
+        setDemo({
+          demo: true,
+          recorded: Boolean(data.recorded),
+          label: typeof data.label === "string" ? data.label : "",
+          questions: Array.isArray(data.questions) ? data.questions : [],
+        });
+      }
     } catch (err) {
       console.error("Failed to fetch documents:", err);
     }
@@ -80,6 +99,9 @@ export default function Home() {
       });
       if (res.ok) {
         setDocuments((prev) => prev.filter((d) => d.id !== id));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(typeof data.error === "string" ? data.error : "Delete failed.");
       }
     } catch (err) {
       console.error("Delete error:", err);
@@ -113,7 +135,19 @@ export default function Home() {
         }),
       });
 
-      // Parse sources from header
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: typeof data.error === "string" ? data.error : "Sorry, something went wrong. Please try again.",
+          },
+        ]);
+        return;
+      }
+
       let sources: SearchResult[] = [];
       const sourcesHeader = res.headers.get("X-Sources");
       if (sourcesHeader) {
@@ -123,12 +157,14 @@ export default function Home() {
           // Ignore parse errors
         }
       }
+      const recorded = res.headers.get("x-demo-recorded") === "true";
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
         content: "",
         sources,
+        demoLabel: recorded ? RECORDED_LABEL : undefined,
       };
       setMessages((prev) => [...prev, assistantMessage]);
 
@@ -189,7 +225,9 @@ export default function Home() {
             <h1 className="font-semibold text-lg">Insight</h1>
           </div>
 
-          {/* Upload area */}
+          {demo?.demo ? (
+            <p className="text-xs text-zinc-400 leading-relaxed">{demo.label}</p>
+          ) : (
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -229,6 +267,7 @@ export default function Home() {
               }}
             />
           </div>
+          )}
         </div>
 
         {/* Document list */}
@@ -254,6 +293,7 @@ export default function Home() {
                     {doc.chunk_count} chunks
                   </p>
                 </div>
+                {demo?.demo ? null : (
                 <button
                   onClick={() => handleDelete(doc.id)}
                   className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-red-400 transition-all"
@@ -261,6 +301,7 @@ export default function Home() {
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
+                )}
               </div>
             ))}
           </div>
@@ -269,8 +310,9 @@ export default function Home() {
         {/* Architecture info */}
         <div className="p-3 border-t border-border">
           <p className="text-[10px] text-zinc-600 leading-relaxed">
-            RAG pipeline: pdf-parse + chunking + OpenAI text-embedding-3-small
-            + Supabase pgvector + GPT-4o-mini
+            {demo?.demo
+              ? "Public demo replays a local Gemma 4 recording. Live mode uses Ollama on your machine."
+              : "RAG pipeline: pdf-parse + chunking + embeddings + pgvector + a grounded chat model"}
           </p>
         </div>
       </aside>
@@ -309,16 +351,19 @@ export default function Home() {
                 Ask your documents anything
               </h2>
               <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-                Upload PDFs, text files, or markdown documents, then ask
-                questions. Insight finds relevant passages and generates
-                answers with exact citations.
+                {demo?.demo
+                  ? demo.label
+                  : "Upload PDFs, text files, or markdown documents, then ask questions. Insight finds relevant passages and generates answers with exact citations."}
               </p>
               <div className="grid gap-2 w-full">
-                {[
-                  "What are the key findings?",
-                  "Summarise the main points",
-                  "What does it say about...?",
-                ].map((suggestion) => (
+                {(demo?.questions?.length
+                  ? demo.questions
+                  : [
+                      "What are the key findings?",
+                      "Summarise the main points",
+                      "What does it say about...?",
+                    ]
+                ).map((suggestion) => (
                   <button
                     key={suggestion}
                     onClick={() => setInput(suggestion)}
@@ -355,6 +400,9 @@ export default function Home() {
                       <p className="text-sm">{message.content}</p>
                     ) : (
                       <div className="prose-answer text-sm text-zinc-300">
+                        {message.demoLabel && (
+                          <p className="text-xs text-brand mb-2">{message.demoLabel}</p>
+                        )}
                         {message.content || (
                           <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
                         )}
@@ -438,16 +486,19 @@ export default function Home() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                documents.length === 0
+                demo?.demo
+                  ? "Ask a recorded question..."
+                  : documents.length === 0
                   ? "Upload a document first..."
                   : "Ask a question about your documents..."
               }
-              disabled={documents.length === 0 || asking}
+              maxLength={2000}
+              disabled={(documents.length === 0 && !demo?.demo) || asking}
               className="flex-1 bg-raised border border-border rounded-xl px-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 disabled:opacity-50 transition-colors"
             />
             <button
               type="submit"
-              disabled={!input.trim() || asking || documents.length === 0}
+              disabled={!input.trim() || asking || (documents.length === 0 && !demo?.demo)}
               className="px-4 py-3 bg-brand hover:bg-brand-dim text-white rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Send question"
             >
