@@ -1,0 +1,9 @@
+Fictional sample. Helmfell Yard is not a real company. This note was written for the Insight demo and is not a real procedure.
+
+# Cold room entry
+
+The cold room on the north wall is held between 2°C and 4°C. The dial beside the door is read at the start of each shift. If the dial shows 5°C or higher, stored goods stay out of the room until the dial is back inside that range. The person who reads the dial writes the number on the shift sheet.
+
+The door stays shut except while someone is stepping through. It is not held open with a stop. Anyone who stays inside for more than fifteen minutes writes the entry time and the exit time on the wall sheet before leaving.
+
+A visitor comes in only with the host named on the yellow badge. The host goes in first and comes out last. A probe check inside the room is taken at the centre shelf, away from the door fan. A reading taken beside the door is marked void on the shift sheet and taken again at the centre shelf.

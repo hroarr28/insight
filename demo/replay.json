@@ -1,159 +1,64 @@
 {
-  "recorded": true,
-  "note": "Recorded from local gemma4:31b with embeddinggemma embeddings. Not a paid API.",
+  "recorded": false,
+  "note": "Helmfell Yard sample questions and document list. Answers in this file are not model outputs. Record them locally with npm run demo:record using gemma4:31b and embeddinggemma.",
   "chat_model": "gemma4:31b",
   "embed_model": "embeddinggemma",
   "ollama_base_url": "http://127.0.0.1:11434",
-  "recorded_at": "2026-11-21T11:32:17.512Z",
+  "recorded_at": null,
   "documents": [
     {
-      "id": "sample-pocket-sundial",
-      "name": "pocket-sundial.txt",
+      "id": "sample-visitor-badge-policy",
+      "name": "visitor-badge-policy.txt",
       "file_type": "text/plain",
-      "chunk_count": 4,
+      "chunk_count": 3,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "sample-cold-room-entry",
+      "name": "cold-room-entry.txt",
+      "file_type": "text/plain",
+      "chunk_count": 3,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "sample-probe-4-manual",
+      "name": "probe-4-manual.txt",
+      "file_type": "text/plain",
+      "chunk_count": 3,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "sample-field-receipts",
+      "name": "field-receipts.txt",
+      "file_type": "text/plain",
+      "chunk_count": 3,
       "created_at": "2026-01-01T00:00:00.000Z"
     }
   ],
   "questions": [
     {
-      "id": "recorded-1",
-      "question": "How does a pocket sundial tell the time?",
-      "answer": "A pocket sundial tells the time by measuring the sun's direction and mapping it onto the hours of the day [Source 4]. It consists of a small plate marked with hour lines and a raised edge called a gnomon that casts a shadow [Source 2, Source 3]. \n\nTo determine the local solar hour, the plate must be held level and the gnomon must point north (in the northern hemisphere), allowing the shadow to fall across the corresponding hour line [Source 2, Source 3].",
-      "sources": [
-        {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 2,
-          "similarity": 0.6349224598172772
-        },
-        {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 1,
-          "similarity": 0.6042501302541444
-        },
-        {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 0,
-          "similarity": 0.5913402703812308
-        },
-        {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.5585364105707182
-        }
-      ]
+      "id": "q1",
+      "question": "When does a visitor return the yellow badge?",
+      "answer": null,
+      "sources": []
     },
     {
-      "id": "recorded-2",
-      "question": "Why do solar time and clock time differ?",
-      "answer": "Solar time and clock time differ because the Earth's axis is tilted and its orbit is slightly oval, which causes the sun to run behind a steady clock for part of the year and ahead of it for the rest [Source 1, Source 2]. This difference is referred to as the equation of time [Source 1, Source 2].",
-      "sources": [
-        {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 1,
-          "similarity": 0.5885476978798623
-        },
-        {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 2,
-          "similarity": 0.5497396804119856
-        },
-        {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.46949258321694276
-        },
-        {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 0,
-          "similarity": 0.33961407879575994
-        }
-      ]
+      "id": "q2",
+      "question": "How soon are field receipts turned in, and what must a fuel receipt show?",
+      "answer": null,
+      "sources": []
     },
     {
-      "id": "recorded-3",
-      "question": "When does a pocket sundial fail?",
-      "answer": "A pocket sundial fails in the following circumstances:\n* Under cloud [Source 1, Source 2]\n* At night [Source 1, Source 2]\n* If the plate is tipped, as this causes the shadow to cross the wrong hour line [Source 1, Source 2]",
-      "sources": [
-        {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.6235624455195313
-        },
-        {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 2,
-          "similarity": 0.6209851303072658
-        },
-        {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 0,
-          "similarity": 0.5119541454672667
-        },
-        {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 1,
-          "similarity": 0.4843981142018023
-        }
-      ]
+      "id": "q3",
+      "question": "What must the Helmfell Probe 4 show before a reading is written down?",
+      "answer": null,
+      "sources": []
     },
     {
-      "id": "recorded-4",
-      "question": "What is the gnomon on a pocket sundial?",
-      "answer": "The gnomon is the raised edge of the small plate of a pocket sundial that casts a shadow [Source 1, Source 2].",
-      "sources": [
-        {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 0,
-          "similarity": 0.6694800408158998
-        },
-        {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 1,
-          "similarity": 0.582083550013024
-        },
-        {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.5111103666737165
-        },
-        {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 2,
-          "similarity": 0.5027289864828998
-        }
-      ]
+      "id": "q4",
+      "question": "A visitor is going into the cold room for a probe check. Which badge rule, entry rule, and probe check apply?",
+      "answer": null,
+      "sources": []
     }
   ]
 }

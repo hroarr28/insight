@@ -1,0 +1,9 @@
+Fictional sample. Helmfell Yard is not a real company. This note was written for the Insight demo and is not a real product manual.
+
+# Helmfell Probe 4
+
+The Helmfell Probe 4 is a handheld thermometer for the dock and the cold room. It has a metal tip, a small screen, and one grey check button. The yard desk issues it from the dry cupboard. It is not left in the cold room overnight. After the last reading of a shift, the probe goes back into its dry pouch and onto the cupboard hook.
+
+Before a number is written down, wipe the tip with a clean cloth, press the grey check button, and wait until the screen shows a steady square. A blinking square means the tip has not settled. Do not copy a number while the square is blinking.
+
+At or above 0°C the tip usually settles in twenty seconds. Below 0°C, wait one full minute after the grey button is pressed before treating the square as steady. If the square never stops blinking, return the probe to the yard desk and take a second probe from the cupboard. The coin cell is replaced only at that desk.

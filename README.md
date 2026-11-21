@@ -1,6 +1,6 @@
 # Insight
 
-The public site is a recorded demo. It plays four stored answers about `samples/pocket-sundial.txt`. `demo/replay.json` is a complete recording: `recorded` is true, the chat model is `gemma4:31b`, and the embeddings are from `embeddinggemma`. Each question has a full answer and source citations. The site streams those stored answers and does not invent replies. A question that is not in the recording gets a short message that lists the four recorded questions.
+The public site is a demo of retrieval over a fictional sample set. Helmfell Yard is not a real company. The samples are short original notes written for this demo: a visitor badge policy, a cold-room entry note, a Probe 4 manual, and a field receipt rule. `demo/questions.json` lists four questions about those files, including one that needs more than one file. `demo/replay.json` stores that question list and the document metadata. The answers in that file are not model outputs. On a machine with Ollama, `npm run demo:record` runs `gemma4:31b` and `embeddinggemma` through the local pipeline and replaces the file. Until those answers are committed, the site does not invent replies. It says the questions have not been recorded yet.
 
 A leftover `OPENAI_API_KEY` does not turn the paid API on. Live mode starts only when `APP_MODE=live`.
 
@@ -25,7 +25,7 @@ Question → embed → cosine search → grounded answer with [Source N]
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router) + TypeScript
-- **Public demo:** static replay of a local Gemma 4 recording. No Supabase and no paid API.
+- **Public demo:** replay of answers recorded locally with Gemma 4, once `demo/replay.json` contains them. No Supabase and no paid API.
 - **Live, local:** Ollama (`gemma4:31b` and `embeddinggemma`) when `APP_MODE=live` and `LLM_PROVIDER=ollama`
 - **Live, paid:** OpenAI `text-embedding-3-small` and GPT-4o-mini, only when `APP_MODE=live` and `OPENAI_API_KEY` is set
 - **Database for live mode:** Supabase (PostgreSQL + pgvector)
@@ -37,14 +37,14 @@ Question → embed → cosine search → grounded answer with [Source N]
 - Automatic text extraction and intelligent chunking
 - Vector embeddings with cosine similarity search
 - Streaming AI responses grounded in document content
-- Source citations with expandable context cards
+- Source citations, open by default, with the document name and the quoted passage. `[Source n]` in an answer scrolls to that card.
 - Conversation history for follow-up questions
 - Document management (upload, list, delete)
 - Dark theme, responsive layout
 
 ## Demo mode and local mode
 
-Demo mode is the default, including when `OPENAI_API_KEY` is present. It does not call a paid API and does not need Supabase. It serves `samples/pocket-sundial.txt` and plays the four answers already stored in `demo/replay.json`. Recorded answers are labelled: "Recorded from local Gemma 4. Live mode runs locally via Ollama."
+Demo mode is the default, including when `OPENAI_API_KEY` is present. It does not call a paid API and does not need Supabase. It serves the Helmfell Yard files under `samples/`. The empty state says answers are retrieved from the sample documents. When a recorded answer is playing, the first line is how many passages it used, for example "Answered from 4 passages in your documents", and the source cards stay open. The Gemma note stays under that line: "Recorded from local Gemma 4. Live mode runs locally via Ollama." The committed `demo/replay.json` does not have those answers yet.
 
 `npm run demo:record` remakes that file on a machine with Ollama:
 
@@ -69,7 +69,7 @@ npm run dev
 
 Uploads and deletion are disabled in the public demo. In live mode, deletion requires `ADMIN_SECRET` (at least 16 characters) as `Authorization: Bearer <secret>`. Ask, search, and upload are rate limited per isolate and reject oversized bodies. On Vercel production, OpenAI calls are also capped per day (`DEMO_DAILY_MODEL_CALLS`, default 40) through `supabase/migrations/002_demo_usage.sql`. Set `DEMO_MODE=false` to turn that cap off.
 
-`npm run seed:sample` does not call a paid API unless `SEED_WITH_OPENAI=true`. The demo does not need that seed.
+`npm run seed:sample` does not call a paid API unless `SEED_WITH_OPENAI=true`. When that flag is set it stores every file listed in `demo/questions.json`. The demo does not need that seed.
 
 ## Demo video
 
@@ -91,4 +91,4 @@ Video coming.
 
 ## Hosted demo checklist
 
-Demo mode needs no Supabase project and no paid API key. A leftover `OPENAI_API_KEY` on Vercel does not start paid calls. A paused Supabase project does not affect demo playback. The committed `demo/replay.json` is already a finished `gemma4:31b` recording. Run `npm run demo:record` only when you want to replace it, then commit and deploy that file. Set `APP_MODE=live` only where you intend to run live answers.
+Demo mode needs no Supabase project and no paid API key. A leftover `OPENAI_API_KEY` on Vercel does not start paid calls. A paused Supabase project does not affect demo playback. The committed `demo/replay.json` lists the fictional sample documents and questions. It does not yet contain Gemma 4 answers. Run `npm run demo:record` where Ollama has `gemma4:31b` and `embeddinggemma`, then commit that file before the hosted site can play answers. Set `APP_MODE=live` only where you intend to run live answers.

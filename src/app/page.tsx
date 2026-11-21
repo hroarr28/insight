@@ -13,6 +13,14 @@ import {
   ChevronRight,
   BookOpen,
 } from "lucide-react";
+import {
+  answerPieces,
+  retrievalLine,
+  RETRIEVAL_EMPTY_LINE,
+  sourceCardsOpen,
+  sourceElementId,
+} from "@/lib/answer-view";
+import { FICTIONAL_SAMPLE_NOTE } from "@/lib/sample-plan";
 import type { Document, Message, SearchResult } from "@/lib/types";
 
 const RECORDED_LABEL =
@@ -34,7 +42,7 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [desktopNavOpen, setDesktopNavOpen] = useState(true);
   const [dragOver, setDragOver] = useState(false);
-  const [expandedSources, setExpandedSources] = useState<string | null>(null);
+  const [collapsedSources, setCollapsedSources] = useState<Set<string>>(() => new Set());
   const [demo, setDemo] = useState<DemoInfo | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -206,6 +214,32 @@ export default function Home() {
     }
   };
 
+  const toggleSources = (messageId: string) => {
+    setCollapsedSources((current) => {
+      const next = new Set(current);
+      if (next.has(messageId)) next.delete(messageId);
+      else next.add(messageId);
+      return next;
+    });
+  };
+
+  const revealSource = (messageId: string, source: number) => {
+    setCollapsedSources((current) => {
+      if (!current.has(messageId)) return current;
+      const next = new Set(current);
+      next.delete(messageId);
+      return next;
+    });
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        document.getElementById(sourceElementId(messageId, source))?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      });
+    });
+  };
+
   const toggleNav = () => {
     if (window.matchMedia("(min-width: 768px)").matches) {
       setDesktopNavOpen((open) => !open);
@@ -247,7 +281,12 @@ export default function Home() {
           </div>
 
           {demo?.demo ? (
-            <p className="text-xs text-zinc-400 leading-relaxed">{demo.label}</p>
+            <div className="space-y-2">
+              <p className="text-xs leading-relaxed text-zinc-300">{FICTIONAL_SAMPLE_NOTE}</p>
+              {demo.label ? (
+                <p className="text-xs leading-relaxed text-zinc-500">{demo.label}</p>
+              ) : null}
+            </div>
           ) : (
           <div
             onDragOver={(e) => {
@@ -332,7 +371,7 @@ export default function Home() {
         <div className="p-3 border-t border-border">
           <p className="text-[10px] text-zinc-600 leading-relaxed">
             {demo?.demo
-              ? "Public demo replays a local Gemma 4 recording. Live mode uses Ollama on your machine."
+              ? "Answers are retrieved from the fictional sample documents. Live mode uses Ollama on your machine."
               : "RAG pipeline: pdf-parse + chunking + embeddings + pgvector + a grounded chat model"}
           </p>
         </div>
@@ -365,18 +404,30 @@ export default function Home() {
         {/* Messages */}
         <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto">
+            <div className="flex min-h-full w-full flex-col">
+              <div className="mx-auto my-auto flex w-full max-w-md flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center mb-6">
                 <MessageSquare className="w-8 h-8 text-brand" />
               </div>
               <h2 className="text-xl font-semibold mb-2">
                 Ask your documents anything
               </h2>
-              <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-                {demo?.demo
-                  ? demo.label
-                  : "Upload PDFs, text files, or markdown documents, then ask questions. Insight finds relevant passages and generates answers with exact citations."}
-              </p>
+              {demo?.demo ? (
+                <div className="mb-6 space-y-2 text-sm leading-relaxed">
+                  <p className="text-zinc-100">{RETRIEVAL_EMPTY_LINE}</p>
+                  {documents.length > 0 ? (
+                    <p className="break-words text-xs text-zinc-400">
+                      {documents.map((doc) => doc.name).join(", ")}
+                    </p>
+                  ) : null}
+                  <p className="text-xs text-zinc-500">{FICTIONAL_SAMPLE_NOTE}</p>
+                  {demo.label ? <p className="text-xs text-zinc-500">{demo.label}</p> : null}
+                </div>
+              ) : (
+                <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+                  Upload PDFs, text files, or markdown documents, then ask questions. Insight finds relevant passages and generates answers with exact citations.
+                </p>
+              )}
               <div className="grid gap-2 w-full">
                 {(demo?.questions?.length
                   ? demo.questions
@@ -388,12 +439,14 @@ export default function Home() {
                 ).map((suggestion) => (
                   <button
                     key={suggestion}
+                    type="button"
                     onClick={() => handleAsk(suggestion)}
                     className="whitespace-normal break-words rounded-lg border border-border px-4 py-2.5 text-left text-sm text-zinc-400 transition-colors hover:border-brand/50 hover:bg-brand/5 hover:text-zinc-200"
                   >
                     {suggestion}
                   </button>
                 ))}
+              </div>
               </div>
             </div>
           )}
@@ -422,10 +475,35 @@ export default function Home() {
                       <p className="break-words text-sm">{message.content}</p>
                     ) : (
                       <div className="prose-answer min-w-0 break-words text-sm text-zinc-300">
-                        {message.demoLabel && (
-                          <p className="text-xs text-brand mb-2">{message.demoLabel}</p>
-                        )}
-                        {message.content || (
+                        {message.sources && message.sources.length > 0 ? (
+                          <p className="text-sm font-medium text-zinc-100">
+                            {retrievalLine(message.sources.length)}
+                          </p>
+                        ) : null}
+                        {message.demoLabel ? (
+                          <p className="text-xs text-zinc-500">{message.demoLabel}</p>
+                        ) : null}
+                        {message.content ? (
+                          <p className="whitespace-pre-wrap break-words">
+                            {answerPieces(message.content).map((piece, index) =>
+                              piece.type === "text" ? (
+                                <span key={index}>{piece.text}</span>
+                              ) : (
+                                <a
+                                  key={index}
+                                  href={`#${sourceElementId(message.id, piece.source)}`}
+                                  className="text-brand-light underline decoration-brand/50 underline-offset-2"
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    revealSource(message.id, piece.source);
+                                  }}
+                                >
+                                  {piece.label}
+                                </a>
+                              )
+                            )}
+                          </p>
+                        ) : (
                           <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
                         )}
                       </div>
@@ -437,37 +515,36 @@ export default function Home() {
                 {message.sources && message.sources.length > 0 && (
                   <div className="mt-2 min-w-0 sm:ml-10">
                     <button
-                      onClick={() =>
-                        setExpandedSources(
-                          expandedSources === message.id
-                            ? null
-                            : message.id
-                        )
-                      }
+                      type="button"
+                      aria-expanded={sourceCardsOpen(collapsedSources, message.id, message.sources.length)}
+                      onClick={() => toggleSources(message.id)}
                       className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1 transition-colors"
                     >
                       <FileText className="w-3 h-3" />
-                      {message.sources.length} sources
+                      {sourceCardsOpen(collapsedSources, message.id, message.sources.length)
+                        ? "Hide sources"
+                        : "Show sources"}
                       <ChevronRight
                         className={`w-3 h-3 transition-transform ${
-                          expandedSources === message.id
+                          sourceCardsOpen(collapsedSources, message.id, message.sources.length)
                             ? "rotate-90"
                             : ""
                         }`}
                       />
                     </button>
-                    {expandedSources === message.id && (
+                    {sourceCardsOpen(collapsedSources, message.id, message.sources.length) && (
                       <div className="mt-2 space-y-2">
                         {message.sources.map((source, i) => (
                           <div
-                            key={i}
-                            className="text-xs bg-surface border border-border rounded-lg p-3"
+                            key={sourceElementId(message.id, i + 1)}
+                            id={sourceElementId(message.id, i + 1)}
+                            className="scroll-mt-3 overflow-hidden text-xs bg-surface border border-border rounded-lg p-3"
                           >
                             <div className="mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                               <span className="font-mono font-medium text-brand">
                                 Source {i + 1}
                               </span>
-                              <span className="break-all text-zinc-600">
+                              <span className="break-all text-zinc-400">
                                 {source.document_name}
                               </span>
                               {source.heading && (
@@ -475,11 +552,11 @@ export default function Home() {
                                   — {source.heading}
                                 </span>
                               )}
-                              <span className="text-zinc-700 sm:ml-auto">
+                              <span className="text-zinc-600 sm:ml-auto">
                                 {(source.similarity * 100).toFixed(0)}% match
                               </span>
                             </div>
-                            <p className="break-words leading-relaxed text-zinc-400 line-clamp-3">
+                            <p className="whitespace-pre-wrap break-words leading-relaxed text-zinc-400">
                               {source.content}
                             </p>
                           </div>
@@ -509,7 +586,7 @@ export default function Home() {
               onChange={(e) => setInput(e.target.value)}
               placeholder={
                 demo?.demo
-                  ? "Ask a recorded question..."
+                  ? "Ask about the sample documents..."
                   : documents.length === 0
                   ? "Upload a document first..."
                   : "Ask a question about your documents..."
