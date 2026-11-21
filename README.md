@@ -1,6 +1,6 @@
 # Insight
 
-The public site is a demo of retrieval over a fictional sample set. Helmfell Yard is not a real company. The samples are short original notes written for this demo: a visitor badge policy, a cold-room entry note, a Probe 4 manual, and a field receipt rule. `demo/questions.json` lists four questions about those files, including one that needs more than one file. `demo/replay.json` stores that question list and the document metadata. The answers in that file are not model outputs. On a machine with Ollama, `npm run demo:record` runs `gemma4:31b` and `embeddinggemma` through the local pipeline and replaces the file. Until those answers are committed, the site does not invent replies. It says the questions have not been recorded yet.
+The public site is a recorded demo of retrieval over a fictional sample set. Helmfell Yard is not a real company. The samples are short original notes written for this demo: a visitor badge policy, a cold-room entry note, a Probe 4 manual, and a field receipt rule. `demo/questions.json` lists four questions about those files, including one that needs more than one file. `demo/replay.json` was recorded from local `gemma4:31b` with `embeddinggemma` embeddings. The site streams those four stored answers and their sources. It does not invent replies. A question that is not in the recording gets a short message that lists the four recorded questions.
 
 A leftover `OPENAI_API_KEY` does not turn the paid API on. Live mode starts only when `APP_MODE=live`.
 
@@ -25,7 +25,7 @@ Question → embed → cosine search → grounded answer with [Source N]
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router) + TypeScript
-- **Public demo:** replay of answers recorded locally with Gemma 4, once `demo/replay.json` contains them. No Supabase and no paid API.
+- **Public demo:** replay of answers recorded from local `gemma4:31b` with `embeddinggemma`. No Supabase and no paid API.
 - **Live, local:** Ollama (`gemma4:31b` and `embeddinggemma`) when `APP_MODE=live` and `LLM_PROVIDER=ollama`
 - **Live, paid:** OpenAI `text-embedding-3-small` and GPT-4o-mini, only when `APP_MODE=live` and `OPENAI_API_KEY` is set
 - **Database for live mode:** Supabase (PostgreSQL + pgvector)
@@ -44,7 +44,7 @@ Question → embed → cosine search → grounded answer with [Source N]
 
 ## Demo mode and local mode
 
-Demo mode is the default, including when `OPENAI_API_KEY` is present. It does not call a paid API and does not need Supabase. It serves the Helmfell Yard files under `samples/`. The empty state says answers are retrieved from the sample documents. When a recorded answer is playing, the first line is how many passages it used, for example "Answered from 4 passages in your documents", and the source cards stay open. The Gemma note stays under that line: "Recorded from local Gemma 4. Live mode runs locally via Ollama." The committed `demo/replay.json` does not have those answers yet.
+Demo mode is the default, including when `OPENAI_API_KEY` is present. It does not call a paid API and does not need Supabase. It serves the Helmfell Yard files under `samples/` and plays the four answers in `demo/replay.json`, recorded from local `gemma4:31b` with `embeddinggemma`. The empty state says answers are retrieved from the sample documents. A recorded answer leads with how many passages it used, for example "Answered from 4 passages in your documents", and the source cards stay open. The Gemma note stays under that line: "Recorded from local Gemma 4. Live mode runs locally via Ollama."
 
 `npm run demo:record` remakes that file on a machine with Ollama:
 
@@ -54,7 +54,7 @@ ollama pull embeddinggemma
 npm run demo:record
 ```
 
-Optional settings: `OLLAMA_BASE_URL` (default `http://127.0.0.1:11434`), `OLLAMA_CHAT_MODEL` (default `gemma4:31b`), `OLLAMA_EMBED_MODEL` (default `embeddinggemma`). The script replaces `demo/replay.json`. Commit and deploy that file if the hosted site should play the new recording.
+Optional settings: `OLLAMA_BASE_URL` (default `http://127.0.0.1:11434`), `OLLAMA_CHAT_MODEL` (default `gemma4:31b`), `OLLAMA_EMBED_MODEL` (default `embeddinggemma`). The script replaces `demo/replay.json`. Commit that file if the hosted site should play the new recording.
 
 Local live mode requires `APP_MODE=live`. With `LLM_PROVIDER=ollama` it uses your Ollama daemon. Without that, it uses OpenAI only when `OPENAI_API_KEY` is set. If live mode is on and neither is available, requests fail and stay off the demo playback.
 
@@ -91,4 +91,4 @@ Video coming.
 
 ## Hosted demo checklist
 
-Demo mode needs no Supabase project and no paid API key. A leftover `OPENAI_API_KEY` on Vercel does not start paid calls. A paused Supabase project does not affect demo playback. The committed `demo/replay.json` lists the fictional sample documents and questions. It does not yet contain Gemma 4 answers. Run `npm run demo:record` where Ollama has `gemma4:31b` and `embeddinggemma`, then commit that file before the hosted site can play answers. Set `APP_MODE=live` only where you intend to run live answers.
+Demo mode needs no Supabase project and no paid API key. A leftover `OPENAI_API_KEY` on Vercel does not start paid calls. A paused Supabase project does not affect demo playback. The committed `demo/replay.json` is a recording from local `gemma4:31b` with `embeddinggemma`. Run `npm run demo:record` only when you want to replace it, then commit that file. Set `APP_MODE=live` only where you intend to run live answers.

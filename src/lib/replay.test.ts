@@ -32,33 +32,31 @@ describe("committed replay fixture", () => {
   const raw = JSON.parse(readFileSync(new URL("../../demo/replay.json", import.meta.url), "utf8"));
   const plan = parseSamplePlan(JSON.parse(readFileSync(path.join(root, "demo/questions.json"), "utf8")));
 
-  it("follows the sample questions and is either incomplete or a complete local Gemma 4 recording", () => {
+  it("plays the committed local gemma4 recording for each sample question", () => {
     const replay = loadReplay(raw);
+    assert.equal(replay.recorded, true);
+    assert.equal(replay.chat_model, "gemma4:31b");
+    assert.equal(replay.embed_model, "embeddinggemma");
+    assert.match(replay.note, /gemma4:31b/);
+    assert.match(replay.note, /embeddinggemma/);
+    assert.ok(replay.recorded_at, "a recording must have a timestamp");
     assert.deepEqual(questionList(replay), questionTexts(plan));
+    assert.equal(replay.questions.length, 4);
     assert.deepEqual(
       replay.documents.map((document) => document.name),
       plan.documents.map((document) => document.name)
     );
-    for (const question of replay.questions) {
-      assert.equal(/sundial/i.test(question.question), false);
-    }
-    if (!replay.recorded) {
-      assert.match(replay.note, /not model outputs/i);
-      for (const question of replay.questions) {
-        assert.equal(question.answer, null);
-        assert.deepEqual(question.sources, []);
-      }
-      return;
-    }
-    assert.match(replay.chat_model, /^gemma4/);
-    assert.ok(replay.recorded_at, "a recording must have a timestamp");
-    assert.ok(replay.questions.length > 0);
     const names = new Set(plan.documents.map((document) => document.name));
     for (const question of replay.questions) {
-      assert.equal(typeof question.answer, "string");
-      assert.ok((question.answer ?? "").trim().length > 0, `empty answer: ${question.question}`);
-      assert.ok(question.sources.length > 0, `no sources: ${question.question}`);
-      for (const source of question.sources) {
+      assert.equal(/sundial/i.test(question.question), false);
+      const playback = playbackFor(replay, question.question);
+      assert.equal(playback.recorded, true);
+      assert.equal(playback.text, question.answer);
+      assert.ok(playback.text.length > 0);
+      assert.equal(playback.text.includes("not been recorded"), false);
+      assert.ok(playback.sources.length > 0);
+      assert.equal(playback.sources.length, question.sources.length);
+      for (const source of playback.sources) {
         assert.equal(names.has(source.document_name), true);
       }
     }
