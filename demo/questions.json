@@ -1,0 +1,10 @@
+{
+  "document": "samples/pocket-sundial.txt",
+  "document_name": "pocket-sundial.txt",
+  "questions": [
+    "How does a pocket sundial tell the time?",
+    "Why do solar time and clock time differ?",
+    "When does a pocket sundial fail?",
+    "What is the gnomon on a pocket sundial?"
+  ]
+}
