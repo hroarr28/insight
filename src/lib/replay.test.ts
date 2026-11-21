@@ -27,19 +27,30 @@ describe("app mode", () => {
 describe("committed replay fixture", () => {
   const raw = JSON.parse(readFileSync(new URL("../../demo/replay.json", import.meta.url), "utf8"));
 
-  it("is a placeholder and does not contain recorded answers", () => {
+  it("is either an honest placeholder or a complete local Gemma 4 recording", () => {
     const replay = loadReplay(raw);
-    assert.equal(replay.recorded, false);
-    assert.match(replay.note, /not model outputs/i);
+    if (!replay.recorded) {
+      assert.match(replay.note, /not model outputs/i);
+      for (const question of replay.questions) {
+        assert.equal(question.answer, null);
+        assert.deepEqual(question.sources, []);
+      }
+      return;
+    }
+    assert.match(replay.chat_model, /^gemma4/);
+    assert.ok(replay.recorded_at, "a recording must have a timestamp");
+    assert.ok(replay.questions.length > 0);
     for (const question of replay.questions) {
-      assert.equal(question.answer, null);
-      assert.deepEqual(question.sources, []);
+      assert.equal(typeof question.answer, "string");
+      assert.ok((question.answer ?? "").trim().length > 0, `empty answer: ${question.question}`);
+      assert.ok(question.sources.length > 0, `no sources: ${question.question}`);
     }
   });
 
   it("does not play back answer text while recorded is false", () => {
     const replay = loadReplay({
       ...raw,
+      recorded: false,
       questions: raw.questions.map((item: { question: string }) => ({
         ...item,
         answer: "This sentence was not produced by a model.",
