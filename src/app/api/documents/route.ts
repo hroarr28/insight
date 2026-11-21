@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { validateDocumentId } from "@/lib/validation";
 
 export async function GET() {
   try {
@@ -28,14 +29,18 @@ export async function GET() {
 
 export async function DELETE(request: Request) {
   try {
-    const { id } = await request.json();
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Document ID required." },
-        { status: 400 }
-      );
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Request body must be JSON." }, { status: 400 });
     }
+
+    const parsed = validateDocumentId(body);
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error }, { status: parsed.status });
+    }
+    const id = parsed.value;
 
     // Delete chunks first (FK), then document
     await supabaseAdmin

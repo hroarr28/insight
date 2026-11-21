@@ -14,6 +14,18 @@ import {
   BookOpen,
 } from "lucide-react";
 import type { Document, Message, SearchResult } from "@/lib/types";
+import { LIMITS } from "@/lib/validation";
+
+function decodeSources(header: string): SearchResult[] {
+  try {
+    const binary = atob(header);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function Home() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -113,16 +125,24 @@ export default function Home() {
         }),
       });
 
-      // Parse sources from header
+      if (!res.ok) {
+        let message = "Sorry, something went wrong. Please try again.";
+        try {
+          const data = await res.json();
+          if (data && typeof data.error === "string") message = data.error;
+        } catch {
+          // The error body was not JSON.
+        }
+        setMessages((prev) => [
+          ...prev,
+          { id: crypto.randomUUID(), role: "assistant", content: message },
+        ]);
+        return;
+      }
+
       let sources: SearchResult[] = [];
       const sourcesHeader = res.headers.get("X-Sources");
-      if (sourcesHeader) {
-        try {
-          sources = JSON.parse(atob(sourcesHeader));
-        } catch {
-          // Ignore parse errors
-        }
-      }
+      if (sourcesHeader) sources = decodeSources(sourcesHeader);
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
@@ -269,8 +289,8 @@ export default function Home() {
         {/* Architecture info */}
         <div className="p-3 border-t border-border">
           <p className="text-[10px] text-zinc-600 leading-relaxed">
-            RAG pipeline: pdf-parse + chunking + OpenAI text-embedding-3-small
-            + Supabase pgvector + GPT-4o-mini
+            Hybrid RAG: pgvector + Postgres full text, fused with reciprocal
+            rank fusion. Optional rerank stays off unless configured.
           </p>
         </div>
       </aside>
@@ -406,7 +426,9 @@ export default function Home() {
                                 </span>
                               )}
                               <span className="text-zinc-700 ml-auto">
-                                {(source.similarity * 100).toFixed(0)}% match
+                                {source.similarity != null
+                                  ? `${(source.similarity * 100).toFixed(0)}% match`
+                                  : "keyword"}
                               </span>
                             </div>
                             <p className="text-zinc-400 line-clamp-3 leading-relaxed">
@@ -442,6 +464,7 @@ export default function Home() {
                   ? "Upload a document first..."
                   : "Ask a question about your documents..."
               }
+              maxLength={LIMITS.maxQueryChars}
               disabled={documents.length === 0 || asking}
               className="flex-1 bg-raised border border-border rounded-xl px-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 disabled:opacity-50 transition-colors"
             />

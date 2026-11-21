@@ -1,0 +1,54 @@
+[
+  {
+    "id": "control-supported",
+    "expect_faithful": true,
+    "question": "Which rights are described as unalienable?",
+    "answer": "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty, and the pursuit of Happiness. [Source 1]",
+    "sources": [
+      "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty, and the pursuit of Happiness."
+    ]
+  },
+  {
+    "id": "control-unsupported",
+    "expect_faithful": false,
+    "question": "What does the Declaration provide for travel?",
+    "answer": "The Declaration promises every colonist a free railway to Philadelphia. [Source 1]",
+    "sources": [
+      "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty, and the pursuit of Happiness."
+    ]
+  },
+  {
+    "id": "control-abstain",
+    "expect_faithful": true,
+    "question": "What is the capital of France?",
+    "answer": "I can only answer from the uploaded documents, and I could not find a relevant passage.",
+    "sources": []
+  },
+  {
+    "id": "control-mixed",
+    "expect_faithful": false,
+    "question": "What rights are listed, and what institution was created with them?",
+    "answer": "People are endowed with Life, Liberty, and the pursuit of Happiness. The same paragraph also creates a national bank. [Source 1]",
+    "sources": [
+      "that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty, and the pursuit of Happiness."
+    ]
+  },
+  {
+    "id": "control-short-claim",
+    "expect_faithful": false,
+    "question": "What did the king refund?",
+    "answer": "The king refunded taxes yesterday. [Source 1]",
+    "sources": [
+      "He has refused his Assent to Laws, the most wholesome and necessary for the public good."
+    ]
+  },
+  {
+    "id": "control-glued-clause",
+    "expect_faithful": false,
+    "question": "What does the Declaration say people are endowed with?",
+    "answer": "People are endowed with Life, Liberty, and the pursuit of Happiness and a free railway to Philadelphia. [Source 1]",
+    "sources": [
+      "that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty, and the pursuit of Happiness."
+    ]
+  }
+]

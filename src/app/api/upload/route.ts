@@ -2,41 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { chunkText, extractTextFromPDF } from "@/lib/chunker";
 import { generateEmbeddings } from "@/lib/embeddings";
+import { assertDatabaseEmbeddingDimensions, EmbeddingDimensionError } from "@/lib/providers/config";
+import { validateUploadFile } from "@/lib/validation";
 
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    const uploaded = formData.get("file");
+    if (!(uploaded instanceof File)) {
+      return NextResponse.json({ error: "No file provided." }, { status: 400 });
     }
 
-    const allowedTypes = [
-      "application/pdf",
-      "text/plain",
-      "text/markdown",
-      "text/x-markdown",
-    ];
-    if (
-      !allowedTypes.includes(file.type) &&
-      !file.name.endsWith(".md") &&
-      !file.name.endsWith(".txt")
-    ) {
-      return NextResponse.json(
-        { error: "Unsupported file type. Upload PDF, TXT, or MD files." },
-        { status: 400 }
-      );
+    const parsed = validateUploadFile({
+      name: uploaded.name,
+      type: uploaded.type,
+      size: uploaded.size,
+    });
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error }, { status: parsed.status });
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "File too large. Maximum 10MB." },
-        { status: 400 }
-      );
-    }
+    const file = uploaded;
 
     // Extract text
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -54,6 +42,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    assertDatabaseEmbeddingDimensions();
 
     // Chunk the text
     const chunks = chunkText(text);
@@ -122,7 +112,10 @@ export async function POST(request: NextRequest) {
       chunks: chunks.length,
     });
   } catch (error) {
-    console.error("Upload error:", error);
+    if (error instanceof EmbeddingDimensionError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error("Upload error:", error instanceof Error ? error.message : "unknown error");
     return NextResponse.json(
       { error: "Internal server error." },
       { status: 500 }

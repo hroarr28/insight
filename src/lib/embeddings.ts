@@ -1,22 +1,11 @@
-import { openai } from "@ai-sdk/openai";
-import { embedMany, embed } from "ai";
+import { getTextProvider } from "@/lib/providers";
 
-const embeddingModel = openai.embedding("text-embedding-3-small");
-
-export async function generateEmbeddings(
-  texts: string[]
-): Promise<number[][]> {
-  const { embeddings } = await embedMany({
-    model: embeddingModel,
-    values: texts,
-  });
-  return embeddings;
+export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
+  return getTextProvider().embed(texts);
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const { embedding } = await embed({
-    model: embeddingModel,
-    value: text,
-  });
+  const [embedding] = await generateEmbeddings([text]);
+  if (!embedding) throw new Error("Embedding provider returned no vector");
   return embedding;
 }
