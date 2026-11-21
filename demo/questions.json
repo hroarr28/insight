@@ -1,10 +1,42 @@
 {
-  "document": "samples/pocket-sundial.txt",
-  "document_name": "pocket-sundial.txt",
+  "documents": [
+    {
+      "path": "samples/visitor-badge-policy.txt",
+      "name": "visitor-badge-policy.txt"
+    },
+    {
+      "path": "samples/cold-room-entry.txt",
+      "name": "cold-room-entry.txt"
+    },
+    {
+      "path": "samples/probe-4-manual.txt",
+      "name": "probe-4-manual.txt"
+    },
+    {
+      "path": "samples/field-receipts.txt",
+      "name": "field-receipts.txt"
+    }
+  ],
   "questions": [
-    "How does a pocket sundial tell the time?",
-    "Why do solar time and clock time differ?",
-    "When does a pocket sundial fail?",
-    "What is the gnomon on a pocket sundial?"
+    {
+      "text": "When does a visitor return the yellow badge?",
+      "documents": ["visitor-badge-policy.txt"]
+    },
+    {
+      "text": "How soon are field receipts turned in, and what must a fuel receipt show?",
+      "documents": ["field-receipts.txt"]
+    },
+    {
+      "text": "What must the Helmfell Probe 4 show before a reading is written down?",
+      "documents": ["probe-4-manual.txt"]
+    },
+    {
+      "text": "A visitor is going into the cold room for a probe check. Which badge rule, entry rule, and probe check apply?",
+      "documents": [
+        "visitor-badge-policy.txt",
+        "cold-room-entry.txt",
+        "probe-4-manual.txt"
+      ]
+    }
   ]
 }

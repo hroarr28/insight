@@ -5,7 +5,7 @@ const root = process.cwd();
 recordFromOllama(root)
   .then((replay) => {
     console.log(
-      `Wrote demo/replay.json (${replay.questions.length} answers, ${replay.chat_model}, ${replay.embed_model}).`
+      `Wrote demo/replay.json (${replay.questions.length} answers, ${replay.documents.length} documents, ${replay.chat_model}, ${replay.embed_model}).`
     );
   })
   .catch((error: unknown) => {

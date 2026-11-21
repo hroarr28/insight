@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { chunkText } from "../src/lib/chunker.ts";
+import { readSampleDocuments } from "../src/lib/record-demo.ts";
+import { parseSamplePlan } from "../src/lib/sample-plan.ts";
 import { seedPlan } from "../src/lib/seed-plan.ts";
-
-const SAMPLE_NAME = "pocket-sundial.txt";
 
 async function embedOpenAI(texts: string[], apiKey: string): Promise<number[][]> {
   const response = await fetch("https://api.openai.com/v1/embeddings", {
@@ -36,42 +36,50 @@ async function main(): Promise<void> {
   const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string;
   const apiKey = process.env.OPENAI_API_KEY as string;
   const supabase = createClient(url, key);
-  const existing = await supabase.from("documents").select("id").eq("name", SAMPLE_NAME).limit(1);
-  if (existing.error) {
-    console.error("Could not read documents. Apply supabase/migrations/001_initial_schema.sql and confirm the project is running.");
-    process.exit(1);
-  }
-  if (existing.data && existing.data.length > 0) {
-    console.log(`${SAMPLE_NAME} is already stored.`);
-    return;
-  }
-  const text = readFileSync(path.join(process.cwd(), "samples", SAMPLE_NAME), "utf8");
-  const chunks = chunkText(text);
-  const embeddings = await embedOpenAI(chunks.map((chunk) => chunk.content), apiKey);
-  const inserted = await supabase
-    .from("documents")
-    .insert({ name: SAMPLE_NAME, file_type: "text/plain", chunk_count: chunks.length })
-    .select()
-    .single();
-  if (inserted.error || !inserted.data) {
-    console.error("Could not insert the sample document.");
-    process.exit(1);
-  }
-  const saved = await supabase.from("document_chunks").insert(
-    chunks.map((chunk, index) => ({
-      document_id: inserted.data.id,
-      content: chunk.content,
-      chunk_index: chunk.index,
-      heading: chunk.metadata.heading ?? null,
-      embedding: JSON.stringify(embeddings[index]),
-    }))
+  const sample = parseSamplePlan(
+    JSON.parse(readFileSync(path.join(process.cwd(), "demo/questions.json"), "utf8"))
   );
-  if (saved.error) {
-    await supabase.from("documents").delete().eq("id", inserted.data.id);
-    console.error("Could not insert sample chunks.");
-    process.exit(1);
+  const documents = readSampleDocuments(process.cwd(), sample);
+  for (const document of documents) {
+    const existing = await supabase.from("documents").select("id").eq("name", document.name).limit(1);
+    if (existing.error) {
+      console.error("Could not read documents. Apply supabase/migrations/001_initial_schema.sql and confirm the project is running.");
+      process.exit(1);
+    }
+    if (existing.data && existing.data.length > 0) {
+      console.log(`${document.name} is already stored.`);
+      continue;
+    }
+    const chunks = chunkText(document.text);
+    const embeddings = await embedOpenAI(
+      chunks.map((chunk) => chunk.content),
+      apiKey
+    );
+    const inserted = await supabase
+      .from("documents")
+      .insert({ name: document.name, file_type: "text/plain", chunk_count: chunks.length })
+      .select()
+      .single();
+    if (inserted.error || !inserted.data) {
+      console.error(`Could not insert ${document.name}.`);
+      process.exit(1);
+    }
+    const saved = await supabase.from("document_chunks").insert(
+      chunks.map((chunk, index) => ({
+        document_id: inserted.data.id,
+        content: chunk.content,
+        chunk_index: chunk.index,
+        heading: chunk.metadata.heading ?? null,
+        embedding: JSON.stringify(embeddings[index]),
+      }))
+    );
+    if (saved.error) {
+      await supabase.from("documents").delete().eq("id", inserted.data.id);
+      console.error(`Could not insert chunks for ${document.name}.`);
+      process.exit(1);
+    }
+    console.log(`Stored ${document.name} (${chunks.length} chunks).`);
   }
-  console.log(`Stored ${SAMPLE_NAME} (${chunks.length} chunks).`);
 }
 
 main().catch((error: unknown) => {

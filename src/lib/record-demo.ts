@@ -4,6 +4,9 @@ import { chunkText } from "./chunker.ts";
 import { buildSystemPrompt, formatContext } from "./grounding.ts";
 import { ollamaChat, ollamaEmbed, ollamaSettings, type OllamaFetch } from "./ollama-client.ts";
 import type { ReplayFile, ReplaySource } from "./replay.ts";
+import { parseSamplePlan, questionTexts, type SamplePlan } from "./sample-plan.ts";
+
+const PASSAGES_PER_ANSWER = 4;
 
 export function cosine(left: number[], right: number[]): number {
   const length = Math.min(left.length, right.length);
@@ -19,9 +22,14 @@ export function cosine(left: number[], right: number[]): number {
   return dot / (Math.sqrt(leftNorm) * Math.sqrt(rightNorm));
 }
 
+export interface RecordDocument {
+  id?: string;
+  name: string;
+  text: string;
+}
+
 export interface RecordInput {
-  documentName: string;
-  documentText: string;
+  documents: RecordDocument[];
   questions: string[];
   chatModel: string;
   embedModel: string;
@@ -41,11 +49,38 @@ export interface QuestionProgress {
   error?: string;
 }
 
+export function sampleDocumentId(name: string): string {
+  const slug = name
+    .replace(/\.[^.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `sample-${slug || "document"}`;
+}
+
+export function readSampleDocuments(root: string, plan: SamplePlan): RecordDocument[] {
+  return plan.documents.map((document) => {
+    const full = path.resolve(root, document.path);
+    const relative = path.relative(root, full);
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+      throw new Error(`Sample path escapes the project: ${document.path}`);
+    }
+    return {
+      id: sampleDocumentId(document.name),
+      name: document.name,
+      text: readFileSync(full, "utf8"),
+    };
+  });
+}
+
 export async function buildReplay(input: RecordInput): Promise<ReplayFile> {
-  const chunks = chunkText(input.documentText);
-  if (chunks.length === 0) throw new Error("Sample document produced no chunks");
-  const vectors = await input.embed(chunks.map((chunk) => chunk.content));
-  if (vectors.length !== chunks.length) throw new Error("Embedding count does not match chunks");
+  if (input.documents.length === 0) throw new Error("Sample documents are missing");
+  const indexed = input.documents.flatMap((document) =>
+    chunkText(document.text).map((chunk) => ({ document, chunk }))
+  );
+  if (indexed.length === 0) throw new Error("Sample documents produced no chunks");
+  const vectors = await input.embed(indexed.map((item) => item.chunk.content));
+  if (vectors.length !== indexed.length) throw new Error("Embedding count does not match chunks");
 
   const questions = [];
   const total = input.questions.length;
@@ -55,19 +90,19 @@ export async function buildReplay(input: RecordInput): Promise<ReplayFile> {
     try {
       const [queryVector] = await input.embed([question]);
       if (!queryVector) throw new Error("Question embedding was empty");
-      const ranked = chunks
-        .map((chunk, chunkIndex) => ({
-          chunk,
+      const ranked = indexed
+        .map((item, chunkIndex) => ({
+          item,
           similarity: cosine(queryVector, vectors[chunkIndex] ?? []),
         }))
         .sort((a, b) => b.similarity - a.similarity)
-        .slice(0, 4);
-      const sources: ReplaySource[] = ranked.map((item) => ({
+        .slice(0, PASSAGES_PER_ANSWER);
+      const sources: ReplaySource[] = ranked.map(({ item, similarity }) => ({
         content: item.chunk.content,
         heading: item.chunk.metadata.heading ?? null,
-        document_name: input.documentName,
+        document_name: item.document.name,
         chunk_index: item.chunk.index,
-        similarity: item.similarity,
+        similarity,
       }));
       const context = formatContext(sources);
       const answer = (await input.answer(question, context)).trim();
@@ -99,6 +134,11 @@ export async function buildReplay(input: RecordInput): Promise<ReplayFile> {
     }
   }
 
+  const counts = new Map<string, number>();
+  for (const item of indexed) {
+    counts.set(item.document.name, (counts.get(item.document.name) ?? 0) + 1);
+  }
+
   return {
     recorded: true,
     note: `Recorded from local ${input.chatModel} with ${input.embedModel} embeddings. Not a paid API.`,
@@ -106,15 +146,13 @@ export async function buildReplay(input: RecordInput): Promise<ReplayFile> {
     embed_model: input.embedModel,
     ollama_base_url: input.baseUrl,
     recorded_at: input.recordedAt ?? new Date().toISOString(),
-    documents: [
-      {
-        id: "sample-pocket-sundial",
-        name: input.documentName,
-        file_type: "text/plain",
-        chunk_count: chunks.length,
-        created_at: "2026-01-01T00:00:00.000Z",
-      },
-    ],
+    documents: input.documents.map((document) => ({
+      id: document.id ?? sampleDocumentId(document.name),
+      name: document.name,
+      file_type: "text/plain",
+      chunk_count: counts.get(document.name) ?? 0,
+      created_at: "2026-01-01T00:00:00.000Z",
+    })),
     questions,
   };
 }
@@ -131,19 +169,13 @@ export async function recordFromOllama(
   fetchImpl?: OllamaFetch
 ): Promise<ReplayFile> {
   const settings = ollamaSettings(env);
-  const questionsFile = JSON.parse(
-    readFileSync(path.join(root, "demo/questions.json"), "utf8")
-  ) as { document?: string; document_name?: string; questions?: unknown };
-  if (!Array.isArray(questionsFile.questions) || questionsFile.questions.some((item) => typeof item !== "string")) {
-    throw new Error("demo/questions.json must list question strings");
-  }
-  const documentPath = path.join(root, questionsFile.document ?? "samples/pocket-sundial.txt");
-  const documentText = readFileSync(documentPath, "utf8");
-  const documentName = questionsFile.document_name ?? path.basename(documentPath);
+  const plan = parseSamplePlan(
+    JSON.parse(readFileSync(path.join(root, "demo/questions.json"), "utf8"))
+  );
+  const documents = readSampleDocuments(root, plan);
   const replay = await buildReplay({
-    documentName,
-    documentText,
-    questions: questionsFile.questions as string[],
+    documents,
+    questions: questionTexts(plan),
     chatModel: settings.chatModel,
     embedModel: settings.embedModel,
     baseUrl: settings.baseUrl,

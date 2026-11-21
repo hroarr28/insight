@@ -4,154 +4,175 @@
   "chat_model": "gemma4:31b",
   "embed_model": "embeddinggemma",
   "ollama_base_url": "http://127.0.0.1:11434",
-  "recorded_at": "2026-11-21T11:32:17.512Z",
+  "recorded_at": "2026-11-21T12:34:01.037Z",
   "documents": [
     {
-      "id": "sample-pocket-sundial",
-      "name": "pocket-sundial.txt",
+      "id": "sample-visitor-badge-policy",
+      "name": "visitor-badge-policy.txt",
       "file_type": "text/plain",
-      "chunk_count": 4,
+      "chunk_count": 3,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "sample-cold-room-entry",
+      "name": "cold-room-entry.txt",
+      "file_type": "text/plain",
+      "chunk_count": 3,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "sample-probe-4-manual",
+      "name": "probe-4-manual.txt",
+      "file_type": "text/plain",
+      "chunk_count": 3,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "sample-field-receipts",
+      "name": "field-receipts.txt",
+      "file_type": "text/plain",
+      "chunk_count": 3,
       "created_at": "2026-01-01T00:00:00.000Z"
     }
   ],
   "questions": [
     {
       "id": "recorded-1",
-      "question": "How does a pocket sundial tell the time?",
-      "answer": "A pocket sundial tells the time by measuring the sun's direction and mapping it onto the hours of the day [Source 4]. It consists of a small plate marked with hour lines and a raised edge called a gnomon that casts a shadow [Source 2, Source 3]. \n\nTo determine the local solar hour, the plate must be held level and the gnomon must point north (in the northern hemisphere), allowing the shadow to fall across the corresponding hour line [Source 2, Source 3].",
+      "question": "When does a visitor return the yellow badge?",
+      "answer": "A visitor returns the yellow badge to the yard desk before leaving the yard [Source 1, Source 2].",
       "sources": [
         {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 2,
-          "similarity": 0.6349224598172772
-        },
-        {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
+          "content": "front gate. A visitor signs the paper log and receives a yellow badge on a clip. The badge shows the visit date and the host's name. It is worn on the outer layer, where a person at the gate can read it without asking the visitor to open a coat.\n\nThe visitor returns the yellow badge to the yard desk before leaving the yard. A badge left in a cab or carried past the gate is reported the same day. The desk writes the badge number in the lost column of the log. A replacement is issued only after that line is filled in.",
+          "heading": "Visitor badges",
+          "document_name": "visitor-badge-policy.txt",
           "chunk_index": 1,
-          "similarity": 0.6042501302541444
+          "similarity": 0.6378832447596566
         },
         {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
+          "content": "yellow badge to the yard desk before leaving the yard. A badge left in a cab or carried past the gate is reported the same day. The desk writes the badge number in the lost column of the log. A replacement is issued only after that line is filled in.\n\nA visitor does not walk the yard alone. The host named on the badge stays with the visitor from the gate until the badge is back on the desk. The cold room stays closed to visitors unless that host goes through the door with them. A yellow badge on its own does not open the cold room.",
+          "heading": "Visitor badges",
+          "document_name": "visitor-badge-policy.txt",
+          "chunk_index": 2,
+          "similarity": 0.627235882274224
+        },
+        {
+          "content": "the dial writes the number on the shift sheet. The door stays shut except while someone is stepping through. It is not held open with a stop. Anyone who stays inside for more than fifteen minutes writes the entry time and the exit time on the wall sheet before leaving.\n\nA visitor comes in only with the host named on the yellow badge. The host goes in first and comes out last. A probe check inside the room is taken at the centre shelf, away from the door fan. A reading taken beside the door is marked void on the shift sheet and taken again at the centre shelf.",
+          "heading": "Cold room entry",
+          "document_name": "cold-room-entry.txt",
+          "chunk_index": 2,
+          "similarity": 0.5357085705269812
+        },
+        {
+          "content": "Fictional sample. Helmfell Yard is not a real company. This note was written for the Insight demo and is not a real policy.\n\n# Visitor badges\n\nHelmfell Yard keeps a desk at the front gate. A visitor signs the paper log and receives a yellow badge on a clip. The badge shows the visit date and the host's name. It is worn on the outer layer, where a person at the gate can read it without asking the visitor to open a coat.",
+          "heading": "Visitor badges",
+          "document_name": "visitor-badge-policy.txt",
           "chunk_index": 0,
-          "similarity": 0.5913402703812308
-        },
-        {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.5585364105707182
+          "similarity": 0.4836877041675431
         }
       ]
     },
     {
       "id": "recorded-2",
-      "question": "Why do solar time and clock time differ?",
-      "answer": "Solar time and clock time differ because the Earth's axis is tilted and its orbit is slightly oval, which causes the sun to run behind a steady clock for part of the year and ahead of it for the rest [Source 1, Source 2]. This difference is referred to as the equation of time [Source 1, Source 2].",
+      "question": "How soon are field receipts turned in, and what must a fuel receipt show?",
+      "answer": "- **Field receipts:** These must be turned in to the yard desk within five working days of the spend [Source 2, Source 3].\n- **Fuel receipts:** These must show the vehicle number in the corner, written by the driver before the receipt reaches the desk [Source 1].",
       "sources": [
         {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 1,
-          "similarity": 0.5885476978798623
-        },
-        {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
+          "content": "arrived late. A meal receipt over 18 dollars needs the host's initials on the paper before the desk will take it. The initials match the host named on that day's yard log. Tips are part of the 18 dollar figure. A meal at or under 18 dollars needs no initials.\n\nA fuel receipt must show the vehicle number in the corner, written by the driver before the paper reaches the desk. The number matches the plate list on the yard board. If the number is missing, the desk puts the receipt in the hold folder and does not enter it on the weekly sheet. Staff do not replace a missing receipt with a guessed amount. The weekly sheet gets a short note that the paper was not turned in.",
+          "heading": "Field receipts",
+          "document_name": "field-receipts.txt",
           "chunk_index": 2,
-          "similarity": 0.5497396804119856
+          "similarity": 0.5981298856575898
         },
         {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.46949258321694276
+          "content": "is not a real expense rule. # Field receipts Field staff turn receipts in to the yard desk within five working days of the spend. The desk stamps the date received. A receipt older than five working days is still filed, and the weekly sheet notes that it arrived late.\n\nA meal receipt over 18 dollars needs the host's initials on the paper before the desk will take it. The initials match the host named on that day's yard log. Tips are part of the 18 dollar figure. A meal at or under 18 dollars needs no initials.",
+          "heading": "Field receipts",
+          "document_name": "field-receipts.txt",
+          "chunk_index": 1,
+          "similarity": 0.5823457091473403
         },
         {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
+          "content": "Fictional sample. Helmfell Yard is not a real company. This note was written for the Insight demo and is not a real expense rule.\n\n# Field receipts\n\nField staff turn receipts in to the yard desk within five working days of the spend. The desk stamps the date received. A receipt older than five working days is still filed, and the weekly sheet notes that it arrived late.",
+          "heading": "Field receipts",
+          "document_name": "field-receipts.txt",
           "chunk_index": 0,
-          "similarity": 0.33961407879575994
+          "similarity": 0.5174281469050157
+        },
+        {
+          "content": "has a metal tip, a small screen, and one grey check button. The yard desk issues it from the dry cupboard. It is not left in the cold room overnight. After the last reading of a shift, the probe goes back into its dry pouch and onto the cupboard hook.\n\nBefore a number is written down, wipe the tip with a clean cloth, press the grey check button, and wait until the screen shows a steady square. A blinking square means the tip has not settled. Do not copy a number while the square is blinking.",
+          "heading": "Helmfell Probe 4",
+          "document_name": "probe-4-manual.txt",
+          "chunk_index": 1,
+          "similarity": 0.34745557569057833
         }
       ]
     },
     {
       "id": "recorded-3",
-      "question": "When does a pocket sundial fail?",
-      "answer": "A pocket sundial fails in the following circumstances:\n* Under cloud [Source 1, Source 2]\n* At night [Source 1, Source 2]\n* If the plate is tipped, as this causes the shadow to cross the wrong hour line [Source 1, Source 2]",
+      "question": "What must the Helmfell Probe 4 show before a reading is written down?",
+      "answer": "Before a number is written down, the screen of the Helmfell Probe 4 must show a steady square [Source 2]. A blinking square indicates that the tip has not settled, and a number should not be copied while it is blinking [Source 2].",
       "sources": [
         {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.6235624455195313
-        },
-        {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 2,
-          "similarity": 0.6209851303072658
-        },
-        {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
+          "content": "Fictional sample. Helmfell Yard is not a real company. This note was written for the Insight demo and is not a real product manual.\n\n# Helmfell Probe 4\n\nThe Helmfell Probe 4 is a handheld thermometer for the dock and the cold room. It has a metal tip, a small screen, and one grey check button. The yard desk issues it from the dry cupboard. It is not left in the cold room overnight. After the last reading of a shift, the probe goes back into its dry pouch and onto the cupboard hook.",
+          "heading": "Helmfell Probe 4",
+          "document_name": "probe-4-manual.txt",
           "chunk_index": 0,
-          "similarity": 0.5119541454672667
+          "similarity": 0.4984407762043757
         },
         {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
+          "content": "has a metal tip, a small screen, and one grey check button. The yard desk issues it from the dry cupboard. It is not left in the cold room overnight. After the last reading of a shift, the probe goes back into its dry pouch and onto the cupboard hook.\n\nBefore a number is written down, wipe the tip with a clean cloth, press the grey check button, and wait until the screen shows a steady square. A blinking square means the tip has not settled. Do not copy a number while the square is blinking.",
+          "heading": "Helmfell Probe 4",
+          "document_name": "probe-4-manual.txt",
           "chunk_index": 1,
-          "similarity": 0.4843981142018023
+          "similarity": 0.484708361078531
+        },
+        {
+          "content": "onto the cupboard hook. Before a number is written down, wipe the tip with a clean cloth, press the grey check button, and wait until the screen shows a steady square. A blinking square means the tip has not settled. Do not copy a number while the square is blinking.\n\nAt or above 0°C the tip usually settles in twenty seconds. Below 0°C, wait one full minute after the grey button is pressed before treating the square as steady. If the square never stops blinking, return the probe to the yard desk and take a second probe from the cupboard. The coin cell is replaced only at that desk.",
+          "heading": "Helmfell Probe 4",
+          "document_name": "probe-4-manual.txt",
+          "chunk_index": 2,
+          "similarity": 0.41704437429209784
+        },
+        {
+          "content": "Fictional sample. Helmfell Yard is not a real company. This note was written for the Insight demo and is not a real procedure.\n\n# Cold room entry\n\nThe cold room on the north wall is held between 2°C and 4°C. The dial beside the door is read at the start of each shift. If the dial shows 5°C or higher, stored goods stay out of the room until the dial is back inside that range. The person who reads the dial writes the number on the shift sheet.",
+          "heading": "Cold room entry",
+          "document_name": "cold-room-entry.txt",
+          "chunk_index": 0,
+          "similarity": 0.3656454684765436
         }
       ]
     },
     {
       "id": "recorded-4",
-      "question": "What is the gnomon on a pocket sundial?",
-      "answer": "The gnomon is the raised edge of the small plate of a pocket sundial that casts a shadow [Source 1, Source 2].",
+      "question": "A visitor is going into the cold room for a probe check. Which badge rule, entry rule, and probe check apply?",
+      "answer": "For a visitor entering the cold room for a probe check, the following rules apply:\n\n*   **Badge Rule**: The visitor must be accompanied by the host named on their yellow badge [Source 1]. The host must enter the room first and exit last [Source 1]. A yellow badge alone does not open the cold room, and the room remains closed to visitors unless the host goes through the door with them [Source 2].\n*   **Entry Rule**: The door must remain shut except while someone is stepping through and cannot be held open with a stop [Source 1, Source 4]. If anyone stays inside for more than fifteen minutes, they must record their entry and exit times on the wall sheet before leaving [Source 1, Source 4].\n*   **Probe Check**: The check must be taken at the centre shelf, away from the door fan [Source 1]. Any reading taken beside the door is marked void on the shift sheet and must be retaken at the centre shelf [Source 1].",
       "sources": [
         {
-          "content": "Pocket Sundial Notes\n\nThis note is original writing for the Insight demo. It is not taken from a company, a course, or a published book.\n\nA pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 0,
-          "similarity": 0.6694800408158998
-        },
-        {
-          "content": "pocket sundial is a small plate with a raised edge, called a gnomon, that casts a shadow. The plate is marked with hour lines. When the plate is held level and the gnomon points north in the northern hemisphere, the shadow falls across the line for the local solar hour.\n\nSolar time and clock time are not the same. The Earth's orbit is slightly oval, and the planet's axis is tilted, so the sun runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 1,
-          "similarity": 0.582083550013024
-        },
-        {
-          "content": "a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.\n\nThe useful fact is simple: the sundial measures the sun's direction, not a stored mechanism. No spring moves it. The marks on the plate are a map of that direction onto the hours of the day.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
-          "chunk_index": 3,
-          "similarity": 0.5111103666737165
-        },
-        {
-          "content": "runs ahead of a steady clock for part of the year and behind it for the rest. That difference is called the equation of time. A careful reading from a sundial still needs that correction, plus the gap between the place you are standing and the meridian your clocks use.\n\nPocket sundials were carried by travellers who could not see a tower clock. They fail under cloud, and they fail at night. They also fail if the plate is tipped, because the shadow then crosses the wrong hour line. A short chain or a tiny plumb line was sometimes added so the owner could see that the plate was level.",
-          "heading": null,
-          "document_name": "pocket-sundial.txt",
+          "content": "the dial writes the number on the shift sheet. The door stays shut except while someone is stepping through. It is not held open with a stop. Anyone who stays inside for more than fifteen minutes writes the entry time and the exit time on the wall sheet before leaving.\n\nA visitor comes in only with the host named on the yellow badge. The host goes in first and comes out last. A probe check inside the room is taken at the centre shelf, away from the door fan. A reading taken beside the door is marked void on the shift sheet and taken again at the centre shelf.",
+          "heading": "Cold room entry",
+          "document_name": "cold-room-entry.txt",
           "chunk_index": 2,
-          "similarity": 0.5027289864828998
+          "similarity": 0.6026557321214109
+        },
+        {
+          "content": "yellow badge to the yard desk before leaving the yard. A badge left in a cab or carried past the gate is reported the same day. The desk writes the badge number in the lost column of the log. A replacement is issued only after that line is filled in.\n\nA visitor does not walk the yard alone. The host named on the badge stays with the visitor from the gate until the badge is back on the desk. The cold room stays closed to visitors unless that host goes through the door with them. A yellow badge on its own does not open the cold room.",
+          "heading": "Visitor badges",
+          "document_name": "visitor-badge-policy.txt",
+          "chunk_index": 2,
+          "similarity": 0.5220399480727257
+        },
+        {
+          "content": "Fictional sample. Helmfell Yard is not a real company. This note was written for the Insight demo and is not a real procedure.\n\n# Cold room entry\n\nThe cold room on the north wall is held between 2°C and 4°C. The dial beside the door is read at the start of each shift. If the dial shows 5°C or higher, stored goods stay out of the room until the dial is back inside that range. The person who reads the dial writes the number on the shift sheet.",
+          "heading": "Cold room entry",
+          "document_name": "cold-room-entry.txt",
+          "chunk_index": 0,
+          "similarity": 0.4773253283638301
+        },
+        {
+          "content": "and 4°C. The dial beside the door is read at the start of each shift. If the dial shows 5°C or higher, stored goods stay out of the room until the dial is back inside that range. The person who reads the dial writes the number on the shift sheet.\n\nThe door stays shut except while someone is stepping through. It is not held open with a stop. Anyone who stays inside for more than fifteen minutes writes the entry time and the exit time on the wall sheet before leaving.",
+          "heading": "Cold room entry",
+          "document_name": "cold-room-entry.txt",
+          "chunk_index": 1,
+          "similarity": 0.452642980267165
         }
       ]
     }

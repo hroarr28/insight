@@ -8,7 +8,7 @@ export function seedPlan(env: Record<string, string | undefined>): SeedPlan {
     return {
       action: "skip",
       reason:
-        "Demo mode serves samples/pocket-sundial.txt from demo/replay.json and does not use Supabase. Database seed is skipped. Set SEED_WITH_OPENAI=true only if you intend to call the paid embeddings API.",
+        "Demo mode serves the fictional Helmfell Yard sample from demo/replay.json and does not use Supabase. Database seed is skipped. Set SEED_WITH_OPENAI=true only if you intend to call the paid embeddings API.",
     };
   }
   const missing: string[] = [];
