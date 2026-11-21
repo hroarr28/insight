@@ -31,7 +31,8 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const [asking, setAsking] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [desktopNavOpen, setDesktopNavOpen] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [expandedSources, setExpandedSources] = useState<string | null>(null);
   const [demo, setDemo] = useState<DemoInfo | null>(null);
@@ -108,11 +109,12 @@ export default function Home() {
     }
   };
 
-  const handleAsk = async () => {
-    if (!input.trim() || asking) return;
+  const handleAsk = async (preset?: string) => {
+    const question = (typeof preset === "string" ? preset : input).trim();
+    if (!question || asking) return;
 
-    const question = input.trim();
     setInput("");
+    setMobileNavOpen(false);
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -204,6 +206,14 @@ export default function Home() {
     }
   };
 
+  const toggleNav = () => {
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      setDesktopNavOpen((open) => !open);
+    } else {
+      setMobileNavOpen((open) => !open);
+    }
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
@@ -212,12 +222,23 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
+    <div className="flex h-dvh max-h-dvh min-h-0 w-full overflow-hidden">
+      {mobileNavOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-30 bg-black/60 md:hidden"
+          aria-label="Close documents"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+      {/* Sidebar: drawer on phones, column on desktop */}
       <aside
-        className={`${
-          sidebarOpen ? "w-72" : "w-0"
-        } transition-all duration-200 bg-surface border-r border-border overflow-hidden flex flex-col shrink-0`}
+        className={`flex flex-col shrink-0 bg-surface border-border overflow-hidden
+          fixed inset-y-0 left-0 z-40 h-full w-[min(18rem,calc(100vw-2.75rem))] border-r
+          transition-transform duration-200
+          ${mobileNavOpen ? "translate-x-0" : "-translate-x-full"}
+          md:static md:z-auto md:h-auto md:translate-x-0 md:transition-[width]
+          ${desktopNavOpen ? "md:w-72 md:border-r" : "md:w-0 md:border-0"}`}
       >
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-2 mb-4">
@@ -318,30 +339,31 @@ export default function Home() {
       </aside>
 
       {/* Main area */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-14 border-b border-border flex items-center px-4 gap-3 shrink-0">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-2 sm:px-4">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-md hover:bg-raised transition-colors"
-            aria-label="Toggle sidebar"
+            onClick={toggleNav}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-raised hover:text-white"
+            aria-label="Toggle documents"
           >
-            {sidebarOpen ? (
-              <X className="w-4 h-4" />
-            ) : (
-              <ChevronRight className="w-4 h-4" />
-            )}
+            <span className="md:hidden">
+              {mobileNavOpen ? <X className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </span>
+            <span className="hidden md:inline">
+              {desktopNavOpen ? <X className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </span>
           </button>
-          <div className="flex items-center gap-2">
-            <Search className="w-4 h-4 text-zinc-500" />
-            <span className="text-sm text-zinc-400">
+          <div className="flex min-w-0 items-center gap-2">
+            <Search className="h-4 w-4 shrink-0 text-zinc-500" />
+            <span className="truncate text-sm text-zinc-400">
               Ask questions about your documents
             </span>
           </div>
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto">
               <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center mb-6">
@@ -366,8 +388,8 @@ export default function Home() {
                 ).map((suggestion) => (
                   <button
                     key={suggestion}
-                    onClick={() => setInput(suggestion)}
-                    className="text-left text-sm px-4 py-2.5 rounded-lg border border-border hover:border-brand/50 hover:bg-brand/5 text-zinc-400 hover:text-zinc-200 transition-colors"
+                    onClick={() => handleAsk(suggestion)}
+                    className="whitespace-normal break-words rounded-lg border border-border px-4 py-2.5 text-left text-sm text-zinc-400 transition-colors hover:border-brand/50 hover:bg-brand/5 hover:text-zinc-200"
                   >
                     {suggestion}
                   </button>
@@ -390,16 +412,16 @@ export default function Home() {
                     </div>
                   )}
                   <div
-                    className={`max-w-[80%] ${
+                    className={`min-w-0 max-w-[85%] sm:max-w-[80%] ${
                       message.role === "user"
-                        ? "bg-brand/20 border border-brand/30 rounded-2xl rounded-tr-md px-4 py-2.5"
+                        ? "rounded-2xl rounded-tr-md border border-brand/30 bg-brand/20 px-4 py-2.5"
                         : ""
                     }`}
                   >
                     {message.role === "user" ? (
-                      <p className="text-sm">{message.content}</p>
+                      <p className="break-words text-sm">{message.content}</p>
                     ) : (
-                      <div className="prose-answer text-sm text-zinc-300">
+                      <div className="prose-answer min-w-0 break-words text-sm text-zinc-300">
                         {message.demoLabel && (
                           <p className="text-xs text-brand mb-2">{message.demoLabel}</p>
                         )}
@@ -413,7 +435,7 @@ export default function Home() {
 
                 {/* Sources */}
                 {message.sources && message.sources.length > 0 && (
-                  <div className="ml-10 mt-2">
+                  <div className="mt-2 min-w-0 sm:ml-10">
                     <button
                       onClick={() =>
                         setExpandedSources(
@@ -441,23 +463,23 @@ export default function Home() {
                             key={i}
                             className="text-xs bg-surface border border-border rounded-lg p-3"
                           >
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-brand font-mono font-medium">
+                            <div className="mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                              <span className="font-mono font-medium text-brand">
                                 Source {i + 1}
                               </span>
-                              <span className="text-zinc-600">
+                              <span className="break-all text-zinc-600">
                                 {source.document_name}
                               </span>
                               {source.heading && (
-                                <span className="text-zinc-500">
+                                <span className="break-words text-zinc-500">
                                   — {source.heading}
                                 </span>
                               )}
-                              <span className="text-zinc-700 ml-auto">
+                              <span className="text-zinc-700 sm:ml-auto">
                                 {(source.similarity * 100).toFixed(0)}% match
                               </span>
                             </div>
-                            <p className="text-zinc-400 line-clamp-3 leading-relaxed">
+                            <p className="break-words leading-relaxed text-zinc-400 line-clamp-3">
                               {source.content}
                             </p>
                           </div>
@@ -473,13 +495,13 @@ export default function Home() {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-border">
+        <div className="shrink-0 border-t border-border px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleAsk();
             }}
-            className="max-w-3xl mx-auto flex gap-2"
+            className="mx-auto flex max-w-3xl gap-2"
           >
             <input
               type="text"
@@ -494,12 +516,12 @@ export default function Home() {
               }
               maxLength={2000}
               disabled={(documents.length === 0 && !demo?.demo) || asking}
-              className="flex-1 bg-raised border border-border rounded-xl px-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 disabled:opacity-50 transition-colors"
+              className="min-w-0 flex-1 rounded-xl border border-border bg-raised px-4 py-3 text-base placeholder:text-zinc-600 focus:border-brand/50 focus:outline-none focus:ring-1 focus:ring-brand/20 disabled:opacity-50 md:text-sm"
             />
             <button
               type="submit"
               disabled={!input.trim() || asking || (documents.length === 0 && !demo?.demo)}
-              className="px-4 py-3 bg-brand hover:bg-brand-dim text-white rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand text-white transition-colors hover:bg-brand-dim disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Send question"
             >
               {asking ? (
