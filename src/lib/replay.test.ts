@@ -1,20 +1,26 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { RECORDED_LABEL } from "./app-mode.ts";
-import { liveProvider, resolveAppMode } from "./app-mode.ts";
+import { liveConfigurationError, liveProvider, RECORDED_LABEL, resolveAppMode } from "./app-mode.ts";
 import { buildReplay } from "./record-demo.ts";
 import { loadReplay, playbackFor } from "./replay.ts";
 import { seedPlan } from "./seed-plan.ts";
 
 describe("app mode", () => {
-  it("defaults to demo when no provider is configured", () => {
+  it("stays in demo unless APP_MODE=live, even when a provider key is set", () => {
     assert.equal(resolveAppMode({}), "demo");
-    assert.equal(resolveAppMode({ OPENAI_API_KEY: "present" }), "live");
-    assert.equal(resolveAppMode({ LLM_PROVIDER: "ollama" }), "live");
+    assert.equal(resolveAppMode({ OPENAI_API_KEY: "present" }), "demo");
+    assert.equal(resolveAppMode({ LLM_PROVIDER: "ollama" }), "demo");
     assert.equal(resolveAppMode({ OPENAI_API_KEY: "present", APP_MODE: "demo" }), "demo");
+    assert.equal(resolveAppMode({ APP_MODE: "live", OPENAI_API_KEY: "present" }), "live");
+    assert.equal(resolveAppMode({ APP_MODE: "live", LLM_PROVIDER: "ollama" }), "live");
     assert.equal(liveProvider({ LLM_PROVIDER: "ollama" }), "ollama");
     assert.equal(liveProvider({}), "openai");
+    assert.match(liveConfigurationError({ APP_MODE: "live" }) ?? "", /OPENAI_API_KEY is missing/);
+    assert.match(liveConfigurationError({ APP_MODE: "live" }) ?? "", /not used for this request/);
+    assert.equal(liveConfigurationError({ APP_MODE: "live", LLM_PROVIDER: "ollama" }), null);
+    assert.equal(liveConfigurationError({ APP_MODE: "live", OPENAI_API_KEY: "present" }), null);
+    assert.equal(liveConfigurationError({ OPENAI_API_KEY: "present" }), null);
   });
 });
 
@@ -95,6 +101,7 @@ describe("recorded playback", () => {
 
 describe("record pipeline", () => {
   it("stores the answer returned by the injected model and does not call the network", async () => {
+    const progress: string[] = [];
     const replay = await buildReplay({
       documentName: "pocket-sundial.txt",
       documentText: "A pocket sundial measures the sun's direction with a gnomon.",
@@ -109,7 +116,11 @@ describe("record pipeline", () => {
       async answer(question) {
         return `Recorded reply for ${question} [Source 1]`;
       },
+      onQuestion(event) {
+        progress.push(event.phase);
+      },
     });
+    assert.deepEqual(progress, ["start", "success"]);
     assert.equal(replay.recorded, true);
     assert.equal(replay.questions[0]?.answer?.includes("Recorded reply"), true);
     assert.equal(replay.chat_model, "gemma4:31b");

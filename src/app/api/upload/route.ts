@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { demoMutationMessage, liveProvider, resolveAppMode } from "@/lib/app-mode";
+import { demoMutationMessage, liveConfigurationError, liveProvider, resolveAppMode } from "@/lib/app-mode";
 import { safeLog } from "@/lib/config-status";
 import { jsonError } from "@/lib/http";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -7,7 +7,6 @@ import { chunkText, extractTextFromPDF } from "@/lib/chunker";
 import { generateEmbeddings } from "@/lib/embeddings";
 import {
   guardBodySize,
-  guardModelConfig,
   guardStorageConfig,
   guardUploadRate,
   MAX_UPLOAD_BYTES,
@@ -26,8 +25,8 @@ export async function POST(request: NextRequest) {
     if (oversized) return oversized;
     const limited = guardUploadRate(request);
     if (limited) return limited;
-    const model = guardModelConfig();
-    if (liveProvider() === "openai" && model) return model;
+    const liveError = liveConfigurationError();
+    if (liveError) return jsonError(liveError, 503);
     const storage = guardStorageConfig();
     if (storage) return storage;
     if (liveProvider() === "openai") {

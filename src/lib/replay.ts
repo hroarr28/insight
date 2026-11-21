@@ -139,7 +139,7 @@ export function unknownQuestionMessage(replay: ReplayFile): string {
     "That question is not in the recorded demo set.",
     "Try one of these:",
     ...lines,
-    "Live answers run on your own machine. Set LLM_PROVIDER=ollama and follow the local mode steps in the README.",
+    "Live answers run on your own machine. Set APP_MODE=live and LLM_PROVIDER=ollama, then follow the local mode steps in the README.",
   ].join("\n");
 }
 

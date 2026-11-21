@@ -29,6 +29,16 @@ export interface RecordInput {
   embed: (texts: string[]) => Promise<number[][]>;
   answer: (question: string, context: string) => Promise<string>;
   recordedAt?: string;
+  onQuestion?: (event: QuestionProgress) => void;
+}
+
+export interface QuestionProgress {
+  index: number;
+  total: number;
+  question: string;
+  phase: "start" | "success" | "failure";
+  elapsedMs?: number;
+  error?: string;
 }
 
 export async function buildReplay(input: RecordInput): Promise<ReplayFile> {
@@ -38,32 +48,55 @@ export async function buildReplay(input: RecordInput): Promise<ReplayFile> {
   if (vectors.length !== chunks.length) throw new Error("Embedding count does not match chunks");
 
   const questions = [];
+  const total = input.questions.length;
   for (const [index, question] of input.questions.entries()) {
-    const [queryVector] = await input.embed([question]);
-    if (!queryVector) throw new Error("Question embedding was empty");
-    const ranked = chunks
-      .map((chunk, chunkIndex) => ({
-        chunk,
-        similarity: cosine(queryVector, vectors[chunkIndex] ?? []),
-      }))
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, 4);
-    const sources: ReplaySource[] = ranked.map((item) => ({
-      content: item.chunk.content,
-      heading: item.chunk.metadata.heading ?? null,
-      document_name: input.documentName,
-      chunk_index: item.chunk.index,
-      similarity: item.similarity,
-    }));
-    const context = formatContext(sources);
-    const answer = (await input.answer(question, context)).trim();
-    if (!answer) throw new Error(`Empty answer for: ${question}`);
-    questions.push({
-      id: `recorded-${index + 1}`,
-      question,
-      answer,
-      sources,
-    });
+    const started = Date.now();
+    input.onQuestion?.({ index, total, question, phase: "start" });
+    try {
+      const [queryVector] = await input.embed([question]);
+      if (!queryVector) throw new Error("Question embedding was empty");
+      const ranked = chunks
+        .map((chunk, chunkIndex) => ({
+          chunk,
+          similarity: cosine(queryVector, vectors[chunkIndex] ?? []),
+        }))
+        .sort((a, b) => b.similarity - a.similarity)
+        .slice(0, 4);
+      const sources: ReplaySource[] = ranked.map((item) => ({
+        content: item.chunk.content,
+        heading: item.chunk.metadata.heading ?? null,
+        document_name: input.documentName,
+        chunk_index: item.chunk.index,
+        similarity: item.similarity,
+      }));
+      const context = formatContext(sources);
+      const answer = (await input.answer(question, context)).trim();
+      if (!answer) throw new Error(`Empty answer for: ${question}`);
+      questions.push({
+        id: `recorded-${index + 1}`,
+        question,
+        answer,
+        sources,
+      });
+      input.onQuestion?.({
+        index,
+        total,
+        question,
+        phase: "success",
+        elapsedMs: Date.now() - started,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Recording failed";
+      input.onQuestion?.({
+        index,
+        total,
+        question,
+        phase: "failure",
+        elapsedMs: Date.now() - started,
+        error: message,
+      });
+      throw error;
+    }
   }
 
   return {
@@ -117,6 +150,20 @@ export async function recordFromOllama(
     embed: (texts) => ollamaEmbed(settings, texts, fetchImpl),
     answer: async (question, context) =>
       ollamaChat(settings, { system: buildSystemPrompt(context), prompt: question }, fetchImpl),
+    onQuestion(event) {
+      const prefix = `[demo:record] ${event.index + 1}/${event.total}`;
+      if (event.phase === "start") {
+        console.log(`${prefix} start: ${event.question}`);
+        return;
+      }
+      const seconds = ((event.elapsedMs ?? 0) / 1000).toFixed(1);
+      if (event.phase === "success") {
+        console.log(`${prefix} ok in ${seconds}s: ${event.question}`);
+        return;
+      }
+      console.error(`${prefix} failed in ${seconds}s: ${event.question}`);
+      if (event.error) console.error(`[demo:record] ${event.error}`);
+    },
   });
   writeReplay(path.join(root, "demo/replay.json"), replay);
   return replay;

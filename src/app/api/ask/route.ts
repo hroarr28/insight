@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import { liveProvider, resolveAppMode } from "@/lib/app-mode";
+import { liveConfigurationError, liveProvider, resolveAppMode } from "@/lib/app-mode";
 import { safeLog } from "@/lib/config-status";
 import { buildSystemPrompt, formatContext } from "@/lib/grounding";
 import { jsonError } from "@/lib/http";
@@ -11,7 +11,6 @@ import { currentReplay, demoBanner } from "@/lib/replay-data";
 import {
   guardAskRate,
   guardBodySize,
-  guardModelConfig,
   guardStorageConfig,
   MAX_JSON_BYTES,
   validateQuestionInput,
@@ -58,8 +57,8 @@ export async function POST(request: NextRequest) {
 
     if (resolveAppMode() === "demo") return replayResponse(parsed.question);
 
-    const model = guardModelConfig();
-    if (liveProvider() === "openai" && model) return model;
+    const liveError = liveConfigurationError();
+    if (liveError) return jsonError(liveError, 503);
     const storage = guardStorageConfig();
     if (storage) return storage;
 

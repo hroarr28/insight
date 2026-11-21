@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { liveProvider, resolveAppMode } from "@/lib/app-mode";
+import { liveConfigurationError, liveProvider, resolveAppMode } from "@/lib/app-mode";
 import { safeLog } from "@/lib/config-status";
 import { jsonError } from "@/lib/http";
 import { normalizeQuestion, playbackFor } from "@/lib/replay";
 import { currentReplay } from "@/lib/replay-data";
 import {
   guardBodySize,
-  guardModelConfig,
   guardSearchRate,
   guardStorageConfig,
   MAX_JSON_BYTES,
@@ -45,8 +44,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const model = guardModelConfig();
-    if (liveProvider() === "openai" && model) return model;
+    const liveError = liveConfigurationError();
+    if (liveError) return jsonError(liveError, 503);
     const storage = guardStorageConfig();
     if (storage) return storage;
     if (liveProvider() === "openai") {

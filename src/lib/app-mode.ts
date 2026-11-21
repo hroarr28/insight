@@ -5,17 +5,22 @@ export const RECORDED_LABEL =
   "Recorded from local Gemma 4. Live mode runs locally via Ollama.";
 
 /**
- * Public demo is the default. A paid provider is used only when a key is set,
- * and Ollama is used only when LLM_PROVIDER=ollama. APP_MODE=demo forces replay
- * even if a key is still present.
+ * Demo is always the default, including when OPENAI_API_KEY is set.
+ * Live mode starts only when APP_MODE=live. APP_MODE=demo forces replay.
  */
 export function resolveAppMode(env: Record<string, string | undefined> = process.env): AppMode {
-  const forced = env.APP_MODE?.trim().toLowerCase();
-  if (forced === "demo") return "demo";
-  if (forced === "live") return "live";
-  if (env.LLM_PROVIDER?.trim().toLowerCase() === "ollama") return "live";
-  if (env.OPENAI_API_KEY?.trim()) return "live";
-  return "demo";
+  return env.APP_MODE?.trim().toLowerCase() === "live" ? "live" : "demo";
+}
+
+/**
+ * Returned only in live mode when OpenAI was selected and no key is set.
+ * Callers must refuse the request. They must not switch back to demo playback.
+ */
+export function liveConfigurationError(env: Record<string, string | undefined> = process.env): string | null {
+  if (resolveAppMode(env) !== "live") return null;
+  if (liveProvider(env) === "ollama") return null;
+  if (env.OPENAI_API_KEY?.trim()) return null;
+  return "APP_MODE=live is set, but OPENAI_API_KEY is missing. Set the key, or set LLM_PROVIDER=ollama. Demo playback was not used for this request.";
 }
 
 export function liveProvider(env: Record<string, string | undefined> = process.env): LiveProvider {
@@ -24,7 +29,7 @@ export function liveProvider(env: Record<string, string | undefined> = process.e
 
 export function demoMutationMessage(action: "upload" | "delete"): string {
   if (action === "upload") {
-    return "Uploads are disabled in the public demo. Run the app locally with LLM_PROVIDER=ollama to index your own files.";
+    return "Uploads are disabled in the public demo. For live mode set APP_MODE=live and LLM_PROVIDER=ollama.";
   }
   return "Deletion is disabled in the public demo.";
 }
